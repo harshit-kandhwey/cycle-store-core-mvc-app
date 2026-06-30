@@ -8,7 +8,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
-using System.Collections.Generic;
 
 namespace AdventureWorksMVCCore.Web
 {
@@ -26,15 +25,14 @@ namespace AdventureWorksMVCCore.Web
         {
             services.AddControllersWithViews();
 
-            Dictionary<string, string> secrets = services.GetSqlCredential("CycleStoreCredentials").Result;
-
+            // Connection string is supplied entirely by configuration, i.e. the
+            // ConnectionStrings__DefaultConnection environment variable set in the
+            // systemd unit. No AWS Secrets Manager, no hardcoded host. On the AWS
+            // cutover only that environment variable changes.
             string connectionString = Configuration.GetConnectionString("DefaultConnection");
 
-            connectionString = connectionString.Replace("<UserId>", secrets["username"]);
-            connectionString = connectionString.Replace("<Password>", secrets["password"]);
-
             services.AddDbContext<CYCLE_STOREContext>(options =>
-            options.UseSqlServer(connectionString));
+                options.UseSqlServer(connectionString));
 
             services.TryAddScoped<ICategoryService, CategoryService>();
         }
