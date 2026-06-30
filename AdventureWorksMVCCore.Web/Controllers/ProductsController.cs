@@ -38,6 +38,13 @@ namespace AdventureWorksMVCCore.Web.Controllers
             {
                 return NotFound();
             }
+
+            // Resolve the product's category so the view can pick a category-appropriate image.
+            if (product.ProductSubcategoryId.HasValue)
+            {
+                var sub = _productService.GetSubcategory(product.ProductSubcategoryId.Value);
+                ViewBag.Category = sub?.ProductCategory?.Name;
+            }
             return View(product);
         }
     }

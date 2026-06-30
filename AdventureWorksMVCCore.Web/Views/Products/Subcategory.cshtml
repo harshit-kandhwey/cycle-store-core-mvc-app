@@ -2,6 +2,7 @@
 @{
     ViewBag.Title = Model.Subcategory.Name;
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var catName = Model.Subcategory.ProductCategory?.Name;
 }
 @functions {
     static string ColorHex(string c) => (c ?? "").ToLowerInvariant() switch
@@ -35,7 +36,7 @@
             @{ var i = 0; }
             @foreach (var p in Model.Products)
             {
-                var img = $"~/Images/catalog/p{(i % 6) + 1}.jpg";
+                var img = CatalogImages.For(catName, i);
                 i++;
                 <a class="pcard" asp-controller="Products" asp-action="Details" asp-route-id="@p.ProductId">
                     <div class="pvis"><img src="@Url.Content(img)" alt="@p.Name" loading="lazy" /></div>
