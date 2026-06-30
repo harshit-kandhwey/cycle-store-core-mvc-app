@@ -1,27 +1,61 @@
-﻿@model AdventureWorksMVCCore.Web.Views.Components.ContentLayoutModel
+@model AdventureWorksMVCCore.Web.Views.Components.ContentLayoutModel
+@functions {
+    static string CategoryIcon(string name) => (name ?? "").ToLowerInvariant() switch
+    {
+        var n when n.Contains("bike") => "bike",
+        var n when n.Contains("component") => "cog",
+        var n when n.Contains("cloth") => "shirt",
+        var n when n.Contains("accessor") => "helmet",
+        _ => "bike"
+    };
+}
+@{
+    var totalSubs = Model.ProductCategories.Sum(c => c.ProductSubcategory.Count);
+}
 
-<div class="content">
-
-    <div class="footerinner">
-        <div id="PnlExpFooter">
-            <div>
-                @foreach (var category in Model.ProductCategories)
-                {
-                    <div asp-for="@category.Name" class=@($"{category.Name}Menu")>
-                        <h1>
-                            <b>@category.Name</b>
-                        </h1>
-                        <ul class=@($"{category.Name}List")>
-                            @foreach (var subCategory in category.ProductSubcategory.ToList())
-                            {
-                                <li>
-                                    <a asp-controller="Products" asp-action="Subcategory" asp-route-id="@subCategory.ProductSubcategoryId">@subCategory.Name</a>
-                                </li>
-                            }
-                        </ul>
-                    </div>
-                }
+<section class="hero">
+    <div class="wrap">
+        <div>
+            <span class="eyebrow" style="color:#c4b5fd">New season · 2026 lineup</span>
+            <h1>Bikes, parts &amp; kit for every kind of ride.</h1>
+            <p>From mountain to road and touring — components, clothing and accessories, served live from the catalog.</p>
+            <div style="display:flex;gap:12px;flex-wrap:wrap">
+                <a class="btn" href="#cat-bikes">Shop bikes <svg><use href="#arrow"/></svg></a>
+                <a class="btn ghost" href="#cat-components">Browse components</a>
+            </div>
+            <div class="hero-stats">
+                <div><b class="num">@Model.ProductCategories.Count</b><span>Categories</span></div>
+                <div><b class="num">@totalSubs</b><span>Subcategories</span></div>
+                <div><b>24h</b><span>Dispatch</span></div>
             </div>
         </div>
+        <div class="hero-art"><img src="@Url.Content("~/Images/catalog/hero.jpg")" alt="Cyclists riding" /></div>
+    </div>
+</section>
+
+<div class="wrap sec">
+    <div class="sec-head">
+        <div><span class="eyebrow">Shop by category</span><h2>Find your gear</h2></div>
+        <p>Pick a category, then drill into a subcategory.</p>
+    </div>
+    <div class="cat-grid">
+        @foreach (var category in Model.ProductCategories)
+        {
+            <div class="cat" id="cat-@(category.Name?.ToLowerInvariant())">
+                <div class="cat-top">
+                    <div>
+                        <h3>@category.Name</h3>
+                        <span class="count">@category.ProductSubcategory.Count subcategories</span>
+                    </div>
+                    <span class="cat-ic"><svg><use href="#@CategoryIcon(category.Name)"/></svg></span>
+                </div>
+                <div class="chips">
+                    @foreach (var subCategory in category.ProductSubcategory.OrderBy(s => s.Name))
+                    {
+                        <a class="chip" asp-controller="Products" asp-action="Subcategory" asp-route-id="@subCategory.ProductSubcategoryId">@subCategory.Name</a>
+                    }
+                </div>
+            </div>
+        }
     </div>
 </div>
