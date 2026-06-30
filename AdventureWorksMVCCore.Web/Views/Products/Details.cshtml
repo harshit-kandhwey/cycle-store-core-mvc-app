@@ -1,0 +1,20 @@
+@model AdventureWorksMVCCore.Web.Models.Product
+@{
+    ViewBag.Title = Model.Name;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="content" style="padding:20px;">
+    <p><a href="javascript:history.back()">&larr; Back</a></p>
+    <h1>@Model.Name</h1>
+    <table style="border-collapse:collapse;">
+        <tr><td style="padding:4px;font-weight:bold;">Product Number</td><td style="padding:4px;">@Model.ProductNumber</td></tr>
+        <tr><td style="padding:4px;font-weight:bold;">Color</td><td style="padding:4px;">@Model.Color</td></tr>
+        <tr><td style="padding:4px;font-weight:bold;">Size</td><td style="padding:4px;">@Model.Size</td></tr>
+        <tr><td style="padding:4px;font-weight:bold;">Weight</td><td style="padding:4px;">@Model.Weight</td></tr>
+        <tr><td style="padding:4px;font-weight:bold;">List Price</td><td style="padding:4px;">@Model.ListPrice.ToString("0.00")</td></tr>
+        <tr><td style="padding:4px;font-weight:bold;">Standard Cost</td><td style="padding:4px;">@Model.StandardCost.ToString("0.00")</td></tr>
+        <tr><td style="padding:4px;font-weight:bold;">Product Line</td><td style="padding:4px;">@Model.ProductLine</td></tr>
+        <tr><td style="padding:4px;font-weight:bold;">Class</td><td style="padding:4px;">@Model.Class</td></tr>
+        <tr><td style="padding:4px;font-weight:bold;">Sell Start Date</td><td style="padding:4px;">@Model.SellStartDate.ToShortDateString()</td></tr>
+    </table>
+</div>

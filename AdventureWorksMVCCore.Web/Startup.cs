@@ -35,6 +35,7 @@ namespace AdventureWorksMVCCore.Web
                 options.UseSqlServer(connectionString));
 
             services.TryAddScoped<ICategoryService, CategoryService>();
+            services.TryAddScoped<IProductService, ProductService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

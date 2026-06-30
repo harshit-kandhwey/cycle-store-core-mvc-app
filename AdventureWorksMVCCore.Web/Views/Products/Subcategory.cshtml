@@ -1,0 +1,45 @@
+@model AdventureWorksMVCCore.Web.Models.SubcategoryProductsViewModel
+@{
+    ViewBag.Title = Model.Subcategory.Name;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="content" style="padding:20px;">
+    <p><a asp-controller="Home" asp-action="Index">&larr; Back to all categories</a></p>
+    <h1>@Model.Subcategory.ProductCategory?.Name &nbsp;/&nbsp; @Model.Subcategory.Name</h1>
+    <p>@Model.Products.Count product(s)</p>
+
+    @if (!Model.Products.Any())
+    {
+        <p>No products found in this subcategory.</p>
+    }
+    else
+    {
+        <table style="width:100%;border-collapse:collapse;">
+            <thead>
+                <tr style="text-align:left;border-bottom:2px solid #503b75;">
+                    <th style="padding:6px;">Name</th>
+                    <th style="padding:6px;">Product #</th>
+                    <th style="padding:6px;">Color</th>
+                    <th style="padding:6px;">Size</th>
+                    <th style="padding:6px;text-align:right;">List Price</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var p in Model.Products)
+                {
+                    <tr style="border-bottom:1px solid #ddd;">
+                        <td style="padding:6px;">@p.Name</td>
+                        <td style="padding:6px;">@p.ProductNumber</td>
+                        <td style="padding:6px;">@p.Color</td>
+                        <td style="padding:6px;">@p.Size</td>
+                        <td style="padding:6px;text-align:right;">@p.ListPrice.ToString("0.00")</td>
+                        <td style="padding:6px;">
+                            <a asp-controller="Products" asp-action="Details" asp-route-id="@p.ProductId">Details</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
