@@ -1,3 +1,5 @@
+using System;
+using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using AdventureWorksMVCCore.Web.Models;
 using AdventureWorksMVCCore.Web.Service.Interface;
@@ -13,8 +15,8 @@ namespace AdventureWorksMVCCore.Web.Controllers
             _productService = productService;
         }
 
-        // GET /Products/Subcategory/{id} — list all products in a subcategory.
-        public IActionResult Subcategory(int id)
+        // GET /Products/Subcategory/{id}?sort=&color=
+        public IActionResult Subcategory(int id, string sort = null, string color = null)
         {
             var subcategory = _productService.GetSubcategory(id);
             if (subcategory == null)
@@ -22,15 +24,42 @@ namespace AdventureWorksMVCCore.Web.Controllers
                 return NotFound();
             }
 
+            var products = _productService.GetProductsBySubcategory(id);
+
+            // Colours available for the filter UI (computed before filtering).
+            var colors = products
+                .Where(p => !string.IsNullOrWhiteSpace(p.Color))
+                .Select(p => p.Color).Distinct()
+                .OrderBy(c => c).ToList();
+
+            if (!string.IsNullOrWhiteSpace(color))
+            {
+                products = products
+                    .Where(p => string.Equals(p.Color, color, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+            }
+
+            products = (sort switch
+            {
+                "price-asc" => products.OrderBy(p => p.ListPrice),
+                "price-desc" => products.OrderByDescending(p => p.ListPrice),
+                "name-desc" => products.OrderByDescending(p => p.Name),
+                _ => products.OrderBy(p => p.Name)
+            }).ToList();
+
+            ViewBag.Sort = sort;
+            ViewBag.Color = color;
+            ViewBag.Colors = colors;
+
             var model = new SubcategoryProductsViewModel
             {
                 Subcategory = subcategory,
-                Products = _productService.GetProductsBySubcategory(id)
+                Products = products
             };
             return View(model);
         }
 
-        // GET /Products/Details/{id} — single product detail.
+        // GET /Products/Details/{id}
         public IActionResult Details(int id)
         {
             var product = _productService.GetProduct(id);
@@ -39,7 +68,6 @@ namespace AdventureWorksMVCCore.Web.Controllers
                 return NotFound();
             }
 
-            // Resolve the product's category so the view can pick a category-appropriate image.
             if (product.ProductSubcategoryId.HasValue)
             {
                 var sub = _productService.GetSubcategory(product.ProductSubcategoryId.Value);
@@ -47,6 +75,30 @@ namespace AdventureWorksMVCCore.Web.Controllers
                 ViewBag.Subcategory = sub?.Name;
             }
             return View(product);
+        }
+
+        // GET /Products/Search?q=
+        public IActionResult Search(string q)
+        {
+            var results = _productService.Search(q);
+            var map = _productService.SubcategoryMap();
+
+            var cards = results.Select((p, i) =>
+            {
+                string image;
+                if (p.ProductSubcategoryId.HasValue && map.TryGetValue(p.ProductSubcategoryId.Value, out var sub))
+                {
+                    image = CatalogImages.For(sub.ProductCategory?.Name, sub.Name, i);
+                }
+                else
+                {
+                    image = CatalogImages.For(null, null, i);
+                }
+                return new ProductCard { Product = p, Image = image };
+            }).ToList();
+
+            ViewBag.Query = q;
+            return View(cards);
         }
     }
 }

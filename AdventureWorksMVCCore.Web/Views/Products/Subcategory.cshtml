@@ -3,6 +3,16 @@
     ViewBag.Title = Model.Subcategory.Name;
     Layout = "~/Views/Shared/_Layout.cshtml";
     var catName = Model.Subcategory.ProductCategory?.Name;
+    var subId = Model.Subcategory.ProductSubcategoryId;
+    var curSort = ViewBag.Sort as string;
+    var curColor = ViewBag.Color as string;
+    var colors = ViewBag.Colors as List<string> ?? new List<string>();
+    var sorts = new[] {
+        new { v = "name", t = "Name A–Z" },
+        new { v = "name-desc", t = "Name Z–A" },
+        new { v = "price-asc", t = "Price: low to high" },
+        new { v = "price-desc", t = "Price: high to low" },
+    };
 }
 @functions {
     static string ColorHex(string c) => (c ?? "").ToLowerInvariant() switch
@@ -17,22 +27,46 @@
 <div class="wrap">
     <div class="crumb">
         <a asp-controller="Home" asp-action="Index">Home</a> /
-        <span>@Model.Subcategory.ProductCategory?.Name</span> /
+        <span>@catName</span> /
         <b>@Model.Subcategory.Name</b>
     </div>
 
     <div class="toolbar">
         <h2>@Model.Subcategory.Name <span class="muted">· @Model.Products.Count product@(Model.Products.Count == 1 ? "" : "s")</span></h2>
-        <a class="btn ghost" style="padding:9px 16px;font-size:13px" asp-controller="Home" asp-action="Index"><svg><use href="#back"/></svg> All categories</a>
+        <div class="controls">
+            <label class="sortbox">
+                <span>Sort</span>
+                <select onchange="location.href=this.value">
+                    @foreach (var s in sorts)
+                    {
+                        <option value="@Url.Action("Subcategory", new { id = subId, sort = s.v, color = curColor })" selected="@((curSort ?? "name") == s.v ? "selected" : null)">@s.t</option>
+                    }
+                </select>
+            </label>
+            <a class="btn ghost" style="padding:9px 16px;font-size:13px" asp-controller="Home" asp-action="Index"><svg><use href="#back"/></svg> All categories</a>
+        </div>
     </div>
+
+    @if (colors.Any())
+    {
+        <div class="filters">
+            <a class="fpill @(string.IsNullOrEmpty(curColor) ? "on" : "")" asp-controller="Products" asp-action="Subcategory" asp-route-id="@subId" asp-route-sort="@curSort">All colours</a>
+            @foreach (var c in colors)
+            {
+                <a class="fpill @(string.Equals(curColor, c, StringComparison.OrdinalIgnoreCase) ? "on" : "")" asp-controller="Products" asp-action="Subcategory" asp-route-id="@subId" asp-route-sort="@curSort" asp-route-color="@c">
+                    <span class="swatch" style="background:@ColorHex(c)"></span>@c
+                </a>
+            }
+        </div>
+    }
 
     @if (!Model.Products.Any())
     {
-        <div class="empty">No products found in this subcategory yet.</div>
+        <div class="empty">No products match this filter. <a asp-controller="Products" asp-action="Subcategory" asp-route-id="@subId">Clear filters</a></div>
     }
     else
     {
-        <div class="prods">
+        <div class="prods" data-infinite>
             @{ var i = 0; }
             @foreach (var p in Model.Products)
             {
@@ -61,5 +95,6 @@
                 </a>
             }
         </div>
+        <div id="scroll-sentinel" class="scroll-sentinel">Loading more…</div>
     }
 </div>

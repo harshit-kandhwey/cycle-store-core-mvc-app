@@ -36,5 +36,26 @@ namespace AdventureWorksMVCCore.Web.Service.Implementation
         {
             return _context.Product.FirstOrDefault(p => p.ProductId == productId);
         }
+
+        public List<Product> Search(string query, int take = 60)
+        {
+            query = (query ?? "").Trim();
+            if (query.Length == 0)
+            {
+                return new List<Product>();
+            }
+            return _context.Product
+                .Where(p => p.Name.Contains(query) || p.ProductNumber.Contains(query))
+                .OrderBy(p => p.Name)
+                .Take(take)
+                .ToList();
+        }
+
+        public IDictionary<int, ProductSubcategory> SubcategoryMap()
+        {
+            return _context.ProductSubcategory
+                .Include(s => s.ProductCategory)
+                .ToDictionary(s => s.ProductSubcategoryId, s => s);
+        }
     }
 }
