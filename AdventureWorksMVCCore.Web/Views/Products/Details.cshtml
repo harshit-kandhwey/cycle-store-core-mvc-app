@@ -2,7 +2,7 @@
 @{
     ViewBag.Title = Model.Name;
     Layout = "~/Views/Shared/_Layout.cshtml";
-    var img = CatalogImages.For(ViewBag.Category as string, Model.ProductId);
+    var img = CatalogImages.For(ViewBag.Category as string, ViewBag.Subcategory as string, Model.ProductId);
 }
 @functions {
     static string ColorHex(string c) => (c ?? "").ToLowerInvariant() switch

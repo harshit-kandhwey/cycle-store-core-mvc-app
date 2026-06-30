@@ -42,6 +42,7 @@
         @foreach (var category in Model.ProductCategories)
         {
             <div class="cat" id="cat-@(category.Name?.ToLowerInvariant())">
+                <div class="cat-banner"><img src="@Url.Content(CatalogImages.Banner(category.Name))" alt="@category.Name" loading="lazy" /></div>
                 <div class="cat-top">
                     <div>
                         <h3>@category.Name</h3>

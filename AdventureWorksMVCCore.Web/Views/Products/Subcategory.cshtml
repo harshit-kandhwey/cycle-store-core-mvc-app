@@ -36,7 +36,7 @@
             @{ var i = 0; }
             @foreach (var p in Model.Products)
             {
-                var img = CatalogImages.For(catName, i);
+                var img = CatalogImages.For(catName, Model.Subcategory.Name, i);
                 i++;
                 <a class="pcard" asp-controller="Products" asp-action="Details" asp-route-id="@p.ProductId">
                     <div class="pvis"><img src="@Url.Content(img)" alt="@p.Name" loading="lazy" /></div>

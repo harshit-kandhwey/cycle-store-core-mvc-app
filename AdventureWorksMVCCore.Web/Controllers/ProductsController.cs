@@ -44,6 +44,7 @@ namespace AdventureWorksMVCCore.Web.Controllers
             {
                 var sub = _productService.GetSubcategory(product.ProductSubcategoryId.Value);
                 ViewBag.Category = sub?.ProductCategory?.Name;
+                ViewBag.Subcategory = sub?.Name;
             }
             return View(product);
         }
