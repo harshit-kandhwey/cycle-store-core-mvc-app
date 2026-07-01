@@ -19,12 +19,14 @@ namespace AdventureWorksMVCCore.Web.Controllers
         public IActionResult Subcategory(int id, string sort = null, string color = null)
         {
             var subcategory = _productService.GetSubcategory(id);
-            if (subcategory == null)
+            if (subcategory == null || !CatalogCuration.IsSubcategoryIncluded(subcategory.Name))
             {
                 return NotFound();
             }
 
-            var products = _productService.GetProductsBySubcategory(id);
+            var products = _productService.GetProductsBySubcategory(id)
+                .Where(p => CatalogCuration.IsProductIncluded(p.ProductNumber))
+                .ToList();
 
             // Colours available for the filter UI (computed before filtering).
             var colors = products
@@ -80,7 +82,9 @@ namespace AdventureWorksMVCCore.Web.Controllers
         // GET /Products/Search?q=
         public IActionResult Search(string q)
         {
-            var results = _productService.Search(q);
+            var results = _productService.Search(q)
+                .Where(p => CatalogCuration.IsProductIncluded(p.ProductNumber))
+                .ToList();
             var map = _productService.SubcategoryMap();
 
             var cards = results.Select((p, i) =>
@@ -88,11 +92,11 @@ namespace AdventureWorksMVCCore.Web.Controllers
                 string image;
                 if (p.ProductSubcategoryId.HasValue && map.TryGetValue(p.ProductSubcategoryId.Value, out var sub))
                 {
-                    image = CatalogImages.For(sub.ProductCategory?.Name, sub.Name, i);
+                    image = CatalogImages.For(sub.ProductCategory?.Name, sub.Name, p.ProductNumber, i);
                 }
                 else
                 {
-                    image = CatalogImages.For(null, null, i);
+                    image = CatalogImages.For(null, null, p.ProductNumber, i);
                 }
                 return new ProductCard { Product = p, Image = image };
             }).ToList();

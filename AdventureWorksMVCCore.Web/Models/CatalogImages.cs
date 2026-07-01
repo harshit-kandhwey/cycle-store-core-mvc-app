@@ -48,6 +48,18 @@ namespace AdventureWorksMVCCore.Web.Models
             return Regex.Replace(s, "[^a-z0-9]+", "-").Trim('-');
         }
 
+        /// <summary>
+        /// Image path for a product, preferring a per-product photo
+        /// (…/catalog/product/{product-number}.jpg) when one is available,
+        /// then a subcategory photo, then a category photo.
+        /// </summary>
+        public static string For(string category, string subcategory, string productNumber, int index)
+        {
+            if (CatalogCuration.IsProductIncluded(productNumber))
+                return "~/Images/catalog/product/" + Slug(productNumber) + ".jpg";
+            return For(category, subcategory, index);
+        }
+
         /// <summary>Image path for a product, preferring a subcategory-specific photo.</summary>
         public static string For(string category, string subcategory, int index)
         {
