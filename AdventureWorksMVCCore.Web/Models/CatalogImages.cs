@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -56,8 +58,26 @@ namespace AdventureWorksMVCCore.Web.Models
         public static string For(string category, string subcategory, string productNumber, int index)
         {
             if (CatalogCuration.IsProductIncluded(productNumber))
-                return "~/Images/catalog/product/" + Slug(productNumber) + ".jpg";
+            {
+                var slug = Slug(productNumber);
+                if (ProductImageExists(slug))
+                    return "~/Images/catalog/product/" + slug + ".jpg";
+            }
             return For(category, subcategory, index);
+        }
+
+        // Cache disk lookups so we don't stat the file on every render.
+        private static readonly ConcurrentDictionary<string, bool> _productImageCache =
+            new ConcurrentDictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
+
+        private static bool ProductImageExists(string slug)
+        {
+            if (string.IsNullOrEmpty(slug)) return false;
+            return _productImageCache.GetOrAdd(slug, s =>
+            {
+                var path = Path.Combine(AppContext.BaseDirectory, "wwwroot", "Images", "catalog", "product", s + ".jpg");
+                return File.Exists(path);
+            });
         }
 
         /// <summary>Image path for a product, preferring a subcategory-specific photo.</summary>
