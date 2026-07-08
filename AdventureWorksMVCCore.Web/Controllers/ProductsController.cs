@@ -63,7 +63,7 @@ namespace AdventureWorksMVCCore.Web.Controllers
 
         // GET /Products/Subcategory/{id}?sort=&color=&color=&min=&max=&inStock=
         public IActionResult Subcategory(int id, string sort = null, string[] color = null,
-            decimal? min = null, decimal? max = null, bool inStock = false)
+            decimal? min = null, decimal? max = null, bool inStock = false, string[] brand = null)
         {
             var subcategory = _productService.GetSubcategory(id);
             if (subcategory == null || !CatalogCuration.IsSubcategoryIncluded(subcategory.Name))
@@ -82,15 +82,27 @@ namespace AdventureWorksMVCCore.Web.Controllers
                 .OrderBy(c => c).ToList();
             var priceFloor = all.Any() ? Math.Floor(all.Min(p => p.ListPrice)) : 0m;
             var priceCeil = all.Any() ? Math.Ceiling(all.Max(p => p.ListPrice)) : 0m;
+            var brands = all
+                .Select(p => CatalogContent.Brand(p.Name))
+                .Where(b => !string.IsNullOrWhiteSpace(b))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderBy(b => b).ToList();
 
             var selColors = (color ?? Array.Empty<string>())
                 .Where(c => !string.IsNullOrWhiteSpace(c))
+                .Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+            var selBrands = (brand ?? Array.Empty<string>())
+                .Where(b => !string.IsNullOrWhiteSpace(b))
                 .Distinct(StringComparer.OrdinalIgnoreCase).ToList();
 
             IEnumerable<Product> query = all;
             if (selColors.Count > 0)
             {
                 query = query.Where(p => selColors.Contains(p.Color, StringComparer.OrdinalIgnoreCase));
+            }
+            if (selBrands.Count > 0)
+            {
+                query = query.Where(p => selBrands.Contains(CatalogContent.Brand(p.Name), StringComparer.OrdinalIgnoreCase));
             }
             if (min.HasValue)
             {
@@ -116,6 +128,8 @@ namespace AdventureWorksMVCCore.Web.Controllers
             ViewBag.Sort = sort;
             ViewBag.Colors = colors;
             ViewBag.SelColors = selColors;
+            ViewBag.Brands = brands;
+            ViewBag.SelBrands = selBrands;
             ViewBag.Min = min;
             ViewBag.Max = max;
             ViewBag.PriceFloor = priceFloor;

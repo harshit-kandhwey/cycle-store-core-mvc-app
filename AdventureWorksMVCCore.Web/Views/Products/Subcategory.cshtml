@@ -7,6 +7,8 @@
     var curSort = ViewBag.Sort as string;
     var colors = ViewBag.Colors as List<string> ?? new List<string>();
     var selColors = ViewBag.SelColors as List<string> ?? new List<string>();
+    var brands = ViewBag.Brands as List<string> ?? new List<string>();
+    var selBrands = ViewBag.SelBrands as List<string> ?? new List<string>();
     var min = ViewBag.Min as decimal?;
     var max = ViewBag.Max as decimal?;
     var priceFloor = (decimal)(ViewBag.PriceFloor ?? 0m);
@@ -21,17 +23,18 @@
     };
     var baseUrl = Url.Action("Subcategory", new { id = subId });
     // Build a filtered URL from an explicit state (used by the removable chips).
-    string Q(IEnumerable<string> cols, string srt, decimal? mn, decimal? mx, bool stk)
+    string Q(IEnumerable<string> cols, IEnumerable<string> brs, string srt, decimal? mn, decimal? mx, bool stk)
     {
         var parts = new List<string>();
         if (!string.IsNullOrEmpty(srt)) parts.Add("sort=" + Uri.EscapeDataString(srt));
         foreach (var c in cols) parts.Add("color=" + Uri.EscapeDataString(c));
+        foreach (var b in brs) parts.Add("brand=" + Uri.EscapeDataString(b));
         if (mn.HasValue) parts.Add("min=" + mn.Value.ToString(System.Globalization.CultureInfo.InvariantCulture));
         if (mx.HasValue) parts.Add("max=" + mx.Value.ToString(System.Globalization.CultureInfo.InvariantCulture));
         if (stk) parts.Add("inStock=true");
         return baseUrl + (parts.Count > 0 ? "?" + string.Join("&", parts) : "");
     }
-    var hasFilters = selColors.Any() || min.HasValue || max.HasValue || inStock || (!string.IsNullOrEmpty(curSort) && curSort != "name");
+    var hasFilters = selColors.Any() || selBrands.Any() || min.HasValue || max.HasValue || inStock || (!string.IsNullOrEmpty(curSort) && curSort != "name");
 }
 @functions {
     static string ColorHex(string c) => (c ?? "").ToLowerInvariant() switch
@@ -92,6 +95,21 @@
                 </div>
             </div>
         }
+        @if (brands.Any())
+        {
+            <div class="frow">
+                <span class="flabel">Brand</span>
+                <div class="filters" style="margin:0">
+                    @foreach (var b in brands)
+                    {
+                        <label class="fpill">
+                            <input type="checkbox" name="brand" value="@b" @(selBrands.Contains(b, StringComparer.OrdinalIgnoreCase) ? "checked" : "") />
+                            @b
+                        </label>
+                    }
+                </div>
+            </div>
+        }
     </form>
 
     @if (hasFilters)
@@ -101,22 +119,26 @@
             @if (!string.IsNullOrEmpty(curSort) && curSort != "name")
             {
                 var label = sorts.FirstOrDefault(x => x.v == curSort)?.t ?? curSort;
-                <a class="afchip" href="@Q(selColors, null, min, max, inStock)">@label <svg><use href="#close"/></svg></a>
+                <a class="afchip" href="@Q(selColors, selBrands, null, min, max, inStock)">@label <svg><use href="#close"/></svg></a>
             }
             @foreach (var c in selColors)
             {
-                <a class="afchip" href="@Q(selColors.Where(x => !string.Equals(x, c, StringComparison.OrdinalIgnoreCase)), curSort, min, max, inStock)">@c <svg><use href="#close"/></svg></a>
+                <a class="afchip" href="@Q(selColors.Where(x => !string.Equals(x, c, StringComparison.OrdinalIgnoreCase)), selBrands, curSort, min, max, inStock)">@c <svg><use href="#close"/></svg></a>
+            }
+            @foreach (var b in selBrands)
+            {
+                <a class="afchip" href="@Q(selColors, selBrands.Where(x => !string.Equals(x, b, StringComparison.OrdinalIgnoreCase)), curSort, min, max, inStock)">@b <svg><use href="#close"/></svg></a>
             }
             @if (min.HasValue || max.HasValue)
             {
-                <a class="afchip" href="@Q(selColors, curSort, null, null, inStock)">
+                <a class="afchip" href="@Q(selColors, selBrands, curSort, null, null, inStock)">
                     @(min.HasValue ? "$" + min.Value.ToString("0") : "$0") – @(max.HasValue ? "$" + max.Value.ToString("0") : "any")
                     <svg><use href="#close"/></svg>
                 </a>
             }
             @if (inStock)
             {
-                <a class="afchip" href="@Q(selColors, curSort, min, max, false)">In stock <svg><use href="#close"/></svg></a>
+                <a class="afchip" href="@Q(selColors, selBrands, curSort, min, max, false)">In stock <svg><use href="#close"/></svg></a>
             }
             <a class="afchip clear" href="@baseUrl">Clear all</a>
         </div>

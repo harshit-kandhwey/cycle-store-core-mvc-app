@@ -1,0 +1,21 @@
+@{
+    ViewBag.Title = "Order confirmed";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var orderNo = TempData["OrderNo"] as string;
+    var email = TempData["OrderEmail"] as string;
+    var total = TempData["OrderTotal"] as string;
+    var items = TempData["OrderItems"];
+}
+<div class="wrap">
+    <div class="state" style="max-width:560px">
+        <span class="ic ok"><svg><use href="#check"/></svg></span>
+        <h3>Thank you — your order is confirmed</h3>
+        <p>We've emailed a receipt to <b>@email</b>.</p>
+        <div class="order-box">
+            <div class="crow"><span>Order number</span><span class="mono">@orderNo</span></div>
+            <div class="crow"><span>Items</span><span class="num">@items</span></div>
+            <div class="crow total"><span>Total paid</span><span class="num">$@total</span></div>
+        </div>
+        <a class="btn" asp-controller="Home" asp-action="Index">Continue shopping</a>
+    </div>
+</div>

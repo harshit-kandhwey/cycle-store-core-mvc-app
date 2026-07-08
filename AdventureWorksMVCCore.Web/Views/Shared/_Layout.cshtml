@@ -1,6 +1,9 @@
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
+@{ var cartCount = AdventureWorksMVCCore.Web.Models.CartStore.Count(Context.Session); }
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta name="csrf-token" content="@Antiforgery.GetAndStoreTokens(Context).RequestToken" />
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>@ViewBag.Title - Unicorn Bike Rentals</title>
@@ -29,6 +32,7 @@
         <symbol id="sun" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.6M12 19.4V22M2 12h2.6M19.4 12H22M4.6 4.6l1.9 1.9M17.5 17.5l1.9 1.9M19.4 4.6l-1.9 1.9M6.5 17.5l-1.9 1.9"/></g></symbol>
         <symbol id="moon" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" d="M20 14.5A8 8 0 1 1 9.5 4a6.3 6.3 0 0 0 10.5 10.5z"/></symbol>
         <symbol id="box" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8M12 13v8"/></g></symbol>
+        <symbol id="check" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" d="M20 6L9 17l-5-5"/></symbol>
     </svg>
 
     @{
@@ -65,7 +69,10 @@
                     <svg class="moon" style="width:18px;height:18px"><use href="#moon"/></svg>
                 </button>
                 <button class="icobtn nav-toggle" aria-label="Menu" aria-expanded="false"><svg style="width:20px;height:20px"><use href="#menu"/></svg></button>
-                <button class="icobtn" aria-label="Cart"><svg style="width:18px;height:18px"><use href="#cart"/></svg><span class="dot">0</span></button>
+                <a class="icobtn cart-link" asp-controller="Cart" asp-action="Index" aria-label="Cart" title="View cart">
+                    <svg style="width:18px;height:18px"><use href="#cart"/></svg>
+                    <span class="dot @(cartCount == 0 ? "hide" : "")" data-cart-count>@cartCount</span>
+                </a>
             </div>
         </div>
     </header>

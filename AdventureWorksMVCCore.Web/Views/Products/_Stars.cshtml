@@ -1,0 +1,8 @@
+@model double
+@{
+    var pct = (Model / 5.0 * 100).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
+}
+<span class="stars" role="img" aria-label="@Model.ToString("0.0") out of 5 stars">
+    <span class="s-empty">★★★★★</span>
+    <span class="s-fill" style="width:@pct%">★★★★★</span>
+</span>

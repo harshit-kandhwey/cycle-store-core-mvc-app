@@ -9,6 +9,13 @@
         ?? CatalogImages.For(cat, sub, Model.ProductNumber, Model.ProductId);
     var related = ViewBag.Related as List<AdventureWorksMVCCore.Web.Models.ProductCard>
         ?? new List<AdventureWorksMVCCore.Web.Models.ProductCard>();
+    var brand = CatalogContent.Brand(Model.Name);
+    var rating = CatalogContent.Rating(Model.ProductNumber);
+    var rcount = CatalogContent.ReviewCount(Model.ProductNumber);
+    var reviews = CatalogContent.Reviews(Model.ProductNumber);
+    var was = CatalogContent.CompareAt(Model.ProductNumber, Model.ListPrice);
+    var off = CatalogContent.DiscountPercent(Model.ProductNumber, Model.ListPrice);
+    var desc = CatalogContent.Description(Model, sub);
 }
 @functions {
     static string ColorHex(string c) => (c ?? "").ToLowerInvariant() switch
@@ -63,12 +70,24 @@
                 <div style="margin:14px 0 2px"><span class="viewing"><svg><use href="#tag"/></svg> You're viewing · @sub</span></div>
             }
             <h1>@Model.Name</h1>
-            <div class="pcode mono">@Model.ProductNumber</div>
-            <div class="dprice"><b class="num">$@Model.ListPrice.ToString("N2")</b></div>
+            <div class="pcode mono">@(brand != null ? brand + " · " : "")@Model.ProductNumber</div>
+            <div class="rate rate-lg">
+                @await Html.PartialAsync("_Stars", rating)
+                <span class="rcount">@rating.ToString("0.0") · @rcount reviews</span>
+            </div>
+            <div class="dprice">
+                <b class="num">$@Model.ListPrice.ToString("N2")</b>
+                @if (was > Model.ListPrice)
+                {
+                    <span class="was num">$@was.ToString("N2")</span>
+                    <span class="off">-@off%</span>
+                }
+            </div>
             <span class="instock">In stock — ships in 24h</span>
+            <p class="ddesc">@desc</p>
             <div class="dactions">
-                <button class="btn" type="button">Add to cart <svg><use href="#cart"/></svg></button>
-                <button class="btn ghost" type="button">Reserve a test ride</button>
+                <button class="btn" type="button" data-add-cart="@Model.ProductId">Add to cart <svg><use href="#cart"/></svg></button>
+                <a class="btn ghost" asp-controller="Cart" asp-action="Index"><svg><use href="#cart"/></svg> View cart</a>
             </div>
 
             <div class="specs">
@@ -98,6 +117,29 @@
                     }
                     <div class="spec"><dt>Sell start</dt><dd class="num">@Model.SellStartDate.ToString("yyyy-MM-dd")</dd></div>
                 </dl>
+            </div>
+        </div>
+    </div>
+
+    <div class="reviews">
+        <h2>Ratings &amp; reviews</h2>
+        <div class="rev-grid">
+            <div class="rev-summary">
+                <div class="rev-score num">@rating.ToString("0.0")<span>/5</span></div>
+                @await Html.PartialAsync("_Stars", rating)
+                <div class="muted">Based on @rcount reviews</div>
+            </div>
+            <div class="rev-list">
+                @foreach (var r in reviews)
+                {
+                    <div class="rev">
+                        <div class="rev-top">
+                            <span class="rev-who">@r.Author</span>
+                            @await Html.PartialAsync("_Stars", (double)r.Stars)
+                        </div>
+                        <p>@r.Text</p>
+                    </div>
+                }
             </div>
         </div>
     </div>

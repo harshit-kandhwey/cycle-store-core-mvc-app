@@ -37,6 +37,19 @@ namespace AdventureWorksMVCCore.Web
 
             services.TryAddScoped<ICategoryService, CategoryService>();
             services.TryAddScoped<IProductService, ProductService>();
+
+            // Guest cart lives in the session (no DB order tables in CYCLE_STORE).
+            services.AddHttpContextAccessor();
+            services.AddDistributedMemoryCache();
+            services.AddSession(o =>
+            {
+                o.IdleTimeout = TimeSpan.FromDays(7);
+                o.Cookie.HttpOnly = true;
+                o.Cookie.IsEssential = true;
+                o.Cookie.Name = "cs-cart";
+            });
+            // Let the add-to-cart fetch() send the CSRF token in a header.
+            services.AddAntiforgery(o => o.HeaderName = "RequestVerificationToken");
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -88,6 +101,8 @@ namespace AdventureWorksMVCCore.Web
             app.UseStaticFiles(new StaticFileOptions { ContentTypeProvider = contentTypes });
 
             app.UseRouting();
+
+            app.UseSession();
 
             app.UseAuthorization();
 

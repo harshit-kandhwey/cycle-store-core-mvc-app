@@ -14,6 +14,12 @@
         _ => "#8b5cf6"
     };
 }
+@{
+    var was = CatalogContent.CompareAt(Model.ProductNumber, Model.ListPrice);
+    var off = CatalogContent.DiscountPercent(Model.ProductNumber, Model.ListPrice);
+    var rating = CatalogContent.Rating(Model.ProductNumber);
+    var rcount = CatalogContent.ReviewCount(Model.ProductNumber);
+}
 <div class="qv" data-gallery>
     <div class="qv-vis gmain"><img src="@Url.Content(main)" alt="@Model.Name" /></div>
     <div class="qv-body">
@@ -23,7 +29,15 @@
         }
         <div class="pcode mono">@Model.ProductNumber</div>
         <h2>@Model.Name</h2>
-        <div class="qv-price num">$@Model.ListPrice.ToString("N2")</div>
+        <div class="rate">@await Html.PartialAsync("_Stars", rating) <span class="rcount">(@rcount)</span></div>
+        <div class="qv-price">
+            <span class="num">$@Model.ListPrice.ToString("N2")</span>
+            @if (was > Model.ListPrice)
+            {
+                <span class="was num">$@was.ToString("N2")</span>
+                <span class="off">-@off%</span>
+            }
+        </div>
         <span class="instock">In stock — ships in 24h</span>
         <div class="pattrs" style="margin-top:6px">
             @if (!string.IsNullOrWhiteSpace(Model.Color))
@@ -51,7 +65,8 @@
             </div>
         }
         <div class="qv-actions">
-            <a class="btn" asp-controller="Products" asp-action="Details" asp-route-id="@Model.ProductId">View full details <svg><use href="#arrow"/></svg></a>
+            <button class="btn" type="button" data-add-cart="@Model.ProductId">Add to cart <svg><use href="#cart"/></svg></button>
+            <a class="btn ghost" asp-controller="Products" asp-action="Details" asp-route-id="@Model.ProductId">Full details <svg><use href="#arrow"/></svg></a>
         </div>
     </div>
 </div>

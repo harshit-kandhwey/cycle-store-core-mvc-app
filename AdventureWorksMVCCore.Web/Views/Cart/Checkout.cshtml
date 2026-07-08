@@ -1,0 +1,61 @@
+@model AdventureWorksMVCCore.Web.Models.CheckoutModel
+@{
+    ViewBag.Title = "Checkout";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var cart = ViewBag.Cart as AdventureWorksMVCCore.Web.Models.CartViewModel
+        ?? new AdventureWorksMVCCore.Web.Models.CartViewModel();
+}
+<div class="wrap">
+    <div class="crumb">
+        <a asp-controller="Home" asp-action="Index">Home</a> /
+        <a asp-controller="Cart" asp-action="Index">Cart</a> / <b>Checkout</b>
+    </div>
+
+    <div class="toolbar"><h2>Checkout</h2></div>
+
+    <div class="cart">
+        <form class="checkout-form" asp-controller="Cart" asp-action="PlaceOrder" method="post">
+            <div asp-validation-summary="ModelOnly" class="valsum"></div>
+            <h3>Contact</h3>
+            <div class="field">
+                <label asp-for="Name">Full name</label>
+                <input asp-for="Name" autocomplete="name" />
+                <span asp-validation-for="Name"></span>
+            </div>
+            <div class="field">
+                <label asp-for="Email">Email</label>
+                <input asp-for="Email" type="email" autocomplete="email" />
+                <span asp-validation-for="Email"></span>
+            </div>
+            <h3>Shipping address</h3>
+            <div class="field">
+                <label asp-for="Address">Address</label>
+                <input asp-for="Address" autocomplete="street-address" />
+                <span asp-validation-for="Address"></span>
+            </div>
+            <div class="field-row">
+                <div class="field">
+                    <label asp-for="City">City</label>
+                    <input asp-for="City" autocomplete="address-level2" />
+                    <span asp-validation-for="City"></span>
+                </div>
+                <div class="field">
+                    <label asp-for="Zip">Postcode</label>
+                    <input asp-for="Zip" autocomplete="postal-code" />
+                    <span asp-validation-for="Zip"></span>
+                </div>
+            </div>
+            <button class="btn" type="submit" style="margin-top:8px">Place order <svg><use href="#arrow"/></svg></button>
+        </form>
+
+        <aside class="cart-summary">
+            <h3>Order summary</h3>
+            @foreach (var l in cart.Lines)
+            {
+                <div class="crow"><span>@l.Qty × @l.Product.Name</span><span class="num">$@l.LineTotal.ToString("N2")</span></div>
+            }
+            <div class="crow total"><span>Total</span><span class="num">$@cart.Subtotal.ToString("N2")</span></div>
+            <a class="btn ghost" asp-controller="Cart" asp-action="Index" style="width:100%;justify-content:center">Back to cart</a>
+        </aside>
+    </div>
+</div>

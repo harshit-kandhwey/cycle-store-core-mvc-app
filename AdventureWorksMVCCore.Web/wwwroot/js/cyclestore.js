@@ -176,3 +176,41 @@
     }
   }
 })();
+
+// Add to cart — delegated click, posts to /Cart/Add with the CSRF token and
+// updates the header badge without a full page reload.
+(function () {
+  var meta = document.querySelector('meta[name="csrf-token"]');
+  var csrf = meta ? meta.getAttribute("content") : "";
+
+  document.addEventListener("click", function (e) {
+    var btn = e.target.closest ? e.target.closest("[data-add-cart]") : null;
+    if (!btn) return;
+    e.preventDefault();
+
+    var id = btn.getAttribute("data-add-cart");
+    var orig = btn.innerHTML;
+    btn.disabled = true;
+
+    var body = "id=" + encodeURIComponent(id) + "&qty=1";
+    fetch("/Cart/Add", {
+      method: "POST",
+      headers: {
+        "X-Requested-With": "fetch",
+        "RequestVerificationToken": csrf,
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body: body
+    })
+      .then(function (r) { if (!r.ok) throw new Error("bad status"); return r.json(); })
+      .then(function (d) {
+        document.querySelectorAll("[data-cart-count]").forEach(function (dot) {
+          dot.textContent = d.count;
+          dot.classList.remove("hide");
+        });
+        btn.innerHTML = "Added ✓";
+        setTimeout(function () { btn.innerHTML = orig; btn.disabled = false; }, 1100);
+      })
+      .catch(function () { btn.innerHTML = orig; btn.disabled = false; });
+  });
+})();

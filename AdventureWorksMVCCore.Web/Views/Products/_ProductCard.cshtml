@@ -8,9 +8,20 @@
         _ => "#8b5cf6"
     };
 }
-@{ var p = Model.Product; }
+@{
+    var p = Model.Product;
+    var was = CatalogContent.CompareAt(p.ProductNumber, p.ListPrice);
+    var off = CatalogContent.DiscountPercent(p.ProductNumber, p.ListPrice);
+    var brand = CatalogContent.Brand(p.Name);
+    var rating = CatalogContent.Rating(p.ProductNumber);
+    var rcount = CatalogContent.ReviewCount(p.ProductNumber);
+}
 <div class="pcard">
     <div class="pvis">
+        @if (off > 0)
+        {
+            <span class="sale-badge">-@off%</span>
+        }
         <a class="pvis-link" asp-controller="Products" asp-action="Details" asp-route-id="@p.ProductId" aria-label="@p.Name">
             <img src="@Url.Content(Model.Image)" alt="@p.Name" loading="lazy" />
         </a>
@@ -19,8 +30,12 @@
         </button>
     </div>
     <a class="pbody" asp-controller="Products" asp-action="Details" asp-route-id="@p.ProductId">
-        <div class="pcode">@p.ProductNumber</div>
+        <div class="pcode">@(brand ?? p.ProductNumber)</div>
         <h3 class="pname">@p.Name</h3>
+        <div class="rate">
+            @await Html.PartialAsync("_Stars", rating)
+            <span class="rcount">(@rcount)</span>
+        </div>
         <div class="pattrs">
             @if (!string.IsNullOrWhiteSpace(p.Color))
             {
@@ -32,8 +47,17 @@
             }
         </div>
         <div class="prow">
-            <div class="price num">$@p.ListPrice.ToString("N2")</div>
+            <div class="pricewrap">
+                <span class="price num">$@p.ListPrice.ToString("N2")</span>
+                @if (was > p.ListPrice)
+                {
+                    <span class="was num">$@was.ToString("N2")</span>
+                }
+            </div>
             <span class="mini">Details <svg><use href="#arrow"/></svg></span>
         </div>
     </a>
+    <button class="btn addcart" type="button" data-add-cart="@p.ProductId" aria-label="Add @p.Name to cart">
+        Add to cart <svg><use href="#cart"/></svg>
+    </button>
 </div>
