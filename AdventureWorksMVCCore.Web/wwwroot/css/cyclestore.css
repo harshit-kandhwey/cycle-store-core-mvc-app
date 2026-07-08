@@ -141,7 +141,7 @@ header.bar .right{margin-left:auto;display:flex;align-items:center;gap:12px}
 .spec dd{margin:0;font-weight:600}
 
 /* ---------- footer ---------- */
-footer.site{background:var(--ink);color:#b6adc6;margin-top:36px;border-top:1px solid #2c2636}
+footer.site{background:#16121E;color:#b6adc6;margin-top:36px;border-top:1px solid #2c2636}
 footer.site .wrap{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:26px 24px;flex-wrap:wrap;font-size:13px}
 footer.site .brand{font-size:15px}
 
