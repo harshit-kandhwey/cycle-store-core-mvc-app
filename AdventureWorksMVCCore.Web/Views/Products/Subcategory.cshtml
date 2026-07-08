@@ -5,14 +5,33 @@
     var catName = Model.Subcategory.ProductCategory?.Name;
     var subId = Model.Subcategory.ProductSubcategoryId;
     var curSort = ViewBag.Sort as string;
-    var curColor = ViewBag.Color as string;
     var colors = ViewBag.Colors as List<string> ?? new List<string>();
+    var selColors = ViewBag.SelColors as List<string> ?? new List<string>();
+    var min = ViewBag.Min as decimal?;
+    var max = ViewBag.Max as decimal?;
+    var priceFloor = (decimal)(ViewBag.PriceFloor ?? 0m);
+    var priceCeil = (decimal)(ViewBag.PriceCeil ?? 0m);
+    var inStock = (bool)(ViewBag.InStock ?? false);
+    var totalCount = (int)(ViewBag.TotalCount ?? Model.Products.Count);
     var sorts = new[] {
         new { v = "name", t = "Name A–Z" },
         new { v = "name-desc", t = "Name Z–A" },
         new { v = "price-asc", t = "Price: low to high" },
         new { v = "price-desc", t = "Price: high to low" },
     };
+    var baseUrl = Url.Action("Subcategory", new { id = subId });
+    // Build a filtered URL from an explicit state (used by the removable chips).
+    string Q(IEnumerable<string> cols, string srt, decimal? mn, decimal? mx, bool stk)
+    {
+        var parts = new List<string>();
+        if (!string.IsNullOrEmpty(srt)) parts.Add("sort=" + Uri.EscapeDataString(srt));
+        foreach (var c in cols) parts.Add("color=" + Uri.EscapeDataString(c));
+        if (mn.HasValue) parts.Add("min=" + mn.Value.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        if (mx.HasValue) parts.Add("max=" + mx.Value.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        if (stk) parts.Add("inStock=true");
+        return baseUrl + (parts.Count > 0 ? "?" + string.Join("&", parts) : "");
+    }
+    var hasFilters = selColors.Any() || min.HasValue || max.HasValue || inStock || (!string.IsNullOrEmpty(curSort) && curSort != "name");
 }
 @functions {
     static string ColorHex(string c) => (c ?? "").ToLowerInvariant() switch
@@ -27,42 +46,90 @@
 <div class="wrap">
     <div class="crumb">
         <a asp-controller="Home" asp-action="Index">Home</a> /
-        <span>@catName</span> /
+        <a asp-controller="Products" asp-action="Category" asp-route-id="@catName">@catName</a> /
         <b>@Model.Subcategory.Name</b>
     </div>
 
     <div class="toolbar">
-        <h2>@Model.Subcategory.Name <span class="muted">· @Model.Products.Count product@(Model.Products.Count == 1 ? "" : "s")</span></h2>
-        <div class="controls">
+        <h2>@Model.Subcategory.Name
+            <span class="muted">· @Model.Products.Count of @totalCount product@(totalCount == 1 ? "" : "s")</span>
+        </h2>
+        <a class="btn ghost" style="padding:9px 16px;font-size:13px" asp-controller="Products" asp-action="Category" asp-route-id="@catName"><svg><use href="#back"/></svg> All @catName</a>
+    </div>
+
+    <form class="filterbar" method="get" asp-action="Subcategory" asp-route-id="@subId">
+        <div class="frow">
+            <span class="flabel">Sort</span>
             <label class="sortbox">
-                <span>Sort</span>
-                <select onchange="location.href=this.value">
+                <select name="sort" onchange="this.form.submit()">
                     @foreach (var s in sorts)
                     {
-                        <option value="@Url.Action("Subcategory", new { id = subId, sort = s.v, color = curColor })" selected="@((curSort ?? "name") == s.v ? "selected" : null)">@s.t</option>
+                        <option value="@s.v" selected="@((curSort ?? "name") == s.v ? "selected" : null)">@s.t</option>
                     }
                 </select>
             </label>
-            <a class="btn ghost" style="padding:9px 16px;font-size:13px" asp-controller="Home" asp-action="Index"><svg><use href="#back"/></svg> All categories</a>
+            <span class="flabel">Price</span>
+            <span class="price-inputs">
+                <input type="number" name="min" value="@(min?.ToString("0.##"))" placeholder="@priceFloor.ToString("0")" min="0" step="1" aria-label="Minimum price" />
+                <span>–</span>
+                <input type="number" name="max" value="@(max?.ToString("0.##"))" placeholder="@priceCeil.ToString("0")" min="0" step="1" aria-label="Maximum price" />
+            </span>
+            <label class="check"><input type="checkbox" name="inStock" value="true" @(inStock ? "checked" : "") /> In stock only</label>
+            <button class="btn" type="submit" style="padding:9px 18px;font-size:14px;margin-left:auto">Apply</button>
         </div>
-    </div>
+        @if (colors.Any())
+        {
+            <div class="frow">
+                <span class="flabel">Colour</span>
+                <div class="filters" style="margin:0">
+                    @foreach (var c in colors)
+                    {
+                        <label class="fpill">
+                            <input type="checkbox" name="color" value="@c" @(selColors.Contains(c, StringComparer.OrdinalIgnoreCase) ? "checked" : "") />
+                            <span class="swatch" style="background:@ColorHex(c)"></span>@c
+                        </label>
+                    }
+                </div>
+            </div>
+        }
+    </form>
 
-    @if (colors.Any())
+    @if (hasFilters)
     {
-        <div class="filters">
-            <a class="fpill @(string.IsNullOrEmpty(curColor) ? "on" : "")" asp-controller="Products" asp-action="Subcategory" asp-route-id="@subId" asp-route-sort="@curSort">All colours</a>
-            @foreach (var c in colors)
+        <div class="active-filters">
+            <span class="lbl">Active:</span>
+            @if (!string.IsNullOrEmpty(curSort) && curSort != "name")
             {
-                <a class="fpill @(string.Equals(curColor, c, StringComparison.OrdinalIgnoreCase) ? "on" : "")" asp-controller="Products" asp-action="Subcategory" asp-route-id="@subId" asp-route-sort="@curSort" asp-route-color="@c">
-                    <span class="swatch" style="background:@ColorHex(c)"></span>@c
+                var label = sorts.FirstOrDefault(x => x.v == curSort)?.t ?? curSort;
+                <a class="afchip" href="@Q(selColors, null, min, max, inStock)">@label <svg><use href="#close"/></svg></a>
+            }
+            @foreach (var c in selColors)
+            {
+                <a class="afchip" href="@Q(selColors.Where(x => !string.Equals(x, c, StringComparison.OrdinalIgnoreCase)), curSort, min, max, inStock)">@c <svg><use href="#close"/></svg></a>
+            }
+            @if (min.HasValue || max.HasValue)
+            {
+                <a class="afchip" href="@Q(selColors, curSort, null, null, inStock)">
+                    @(min.HasValue ? "$" + min.Value.ToString("0") : "$0") – @(max.HasValue ? "$" + max.Value.ToString("0") : "any")
+                    <svg><use href="#close"/></svg>
                 </a>
             }
+            @if (inStock)
+            {
+                <a class="afchip" href="@Q(selColors, curSort, min, max, false)">In stock <svg><use href="#close"/></svg></a>
+            }
+            <a class="afchip clear" href="@baseUrl">Clear all</a>
         </div>
     }
 
     @if (!Model.Products.Any())
     {
-        <div class="empty">No products match this filter. <a asp-controller="Products" asp-action="Subcategory" asp-route-id="@subId">Clear filters</a></div>
+        <div class="state">
+            <span class="ic"><svg><use href="#box"/></svg></span>
+            <h3>No products match these filters</h3>
+            <p>Try widening the price range or clearing a colour to see more of the @Model.Subcategory.Name range.</p>
+            <a class="btn" href="@baseUrl">Clear filters</a>
+        </div>
     }
     else
     {
@@ -70,29 +137,13 @@
             @{ var i = 0; }
             @foreach (var p in Model.Products)
             {
-                var img = CatalogImages.For(catName, Model.Subcategory.Name, p.ProductNumber, i);
+                var card = new AdventureWorksMVCCore.Web.Models.ProductCard
+                {
+                    Product = p,
+                    Image = CatalogImages.For(catName, Model.Subcategory.Name, p.ProductNumber, i)
+                };
                 i++;
-                <a class="pcard" asp-controller="Products" asp-action="Details" asp-route-id="@p.ProductId">
-                    <div class="pvis"><img src="@Url.Content(img)" alt="@p.Name" loading="lazy" /></div>
-                    <div class="pbody">
-                        <div class="pcode">@p.ProductNumber</div>
-                        <h3 class="pname">@p.Name</h3>
-                        <div class="pattrs">
-                            @if (!string.IsNullOrWhiteSpace(p.Color))
-                            {
-                                <span class="attr"><span class="swatch" style="background:@ColorHex(p.Color)"></span>@p.Color</span>
-                            }
-                            @if (!string.IsNullOrWhiteSpace(p.Size))
-                            {
-                                <span class="attr">Size @p.Size</span>
-                            }
-                        </div>
-                        <div class="prow">
-                            <div class="price num">$@p.ListPrice.ToString("N2")</div>
-                            <span class="mini">Details <svg><use href="#arrow"/></svg></span>
-                        </div>
-                    </div>
-                </a>
+                @await Html.PartialAsync("_ProductCard", card)
             }
         </div>
         <div id="scroll-sentinel" class="scroll-sentinel">Loading more…</div>

@@ -1,4 +1,4 @@
-// Cycle Store — front-end behaviours (mobile nav + infinite scroll)
+// Cycle Store — front-end behaviours (mobile nav, theme, infinite scroll, quick-view, gallery)
 (function () {
   "use strict";
 
@@ -14,24 +14,153 @@
     });
   }
 
-  // ---- Infinite scroll: progressively reveal cards in a .prods[data-infinite] grid ----
+  // ---- Dark / light theme toggle (initial theme set inline in <head> to avoid FOUC) ----
+  var themeBtn = document.querySelector(".theme-toggle");
+  if (themeBtn) {
+    themeBtn.addEventListener("click", function () {
+      var root = document.documentElement;
+      var current = root.getAttribute("data-theme");
+      if (!current) {
+        current = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      }
+      var next = current === "dark" ? "light" : "dark";
+      root.setAttribute("data-theme", next);
+      try { localStorage.setItem("cs-theme", next); } catch (e) {}
+      themeBtn.setAttribute("aria-label", next === "dark" ? "Switch to light theme" : "Switch to dark theme");
+    });
+  }
+
+  // ---- Product image gallery (Details page + quick-view modal) ----
+  function initGallery(root) {
+    (root || document).querySelectorAll("[data-gallery]").forEach(function (g) {
+      if (g.dataset.wired) return;
+      g.dataset.wired = "1";
+      var main = g.querySelector(".gmain img");
+      var thumbs = Array.prototype.slice.call(g.querySelectorAll(".gthumb"));
+      thumbs.forEach(function (t) {
+        t.addEventListener("click", function () {
+          var src = t.getAttribute("data-src");
+          if (main && src) { main.src = src; }
+          thumbs.forEach(function (x) { x.classList.remove("on"); });
+          t.classList.add("on");
+        });
+      });
+      // Zoom on hover (pointer devices only)
+      var box = g.querySelector(".gmain");
+      if (box && main && window.matchMedia && window.matchMedia("(hover:hover)").matches) {
+        box.addEventListener("mousemove", function (e) {
+          var r = box.getBoundingClientRect();
+          main.style.transformOrigin = ((e.clientX - r.left) / r.width * 100) + "% " + ((e.clientY - r.top) / r.height * 100) + "%";
+          main.style.transform = "scale(1.9)";
+        });
+        box.addEventListener("mouseleave", function () {
+          main.style.transform = "";
+        });
+      }
+    });
+  }
+  initGallery(document);
+
+  // ---- Quick-view modal ----
+  var modal = document.getElementById("qvModal");
+  var qvContent = document.getElementById("qvContent");
+  var lastFocus = null;
+
+  function skeletonQV() {
+    return '<div class="qv"><div class="qv-vis skel"></div>' +
+      '<div class="qv-body">' +
+      '<div class="skel l" style="height:11px;width:30%"></div>' +
+      '<div class="skel l" style="height:22px;width:75%;margin-top:6px"></div>' +
+      '<div class="skel l" style="height:26px;width:40%;margin-top:10px"></div>' +
+      '<div class="skel l" style="height:38px;width:100%;margin-top:16px"></div>' +
+      '</div></div>';
+  }
+
+  function openModal() {
+    if (!modal) return;
+    lastFocus = document.activeElement;
+    modal.classList.add("open");
+    modal.setAttribute("aria-hidden", "false");
+    document.body.style.overflow = "hidden";
+    var closeBtn = modal.querySelector(".modal-close");
+    if (closeBtn) { closeBtn.focus(); }
+  }
+  function closeModal() {
+    if (!modal) return;
+    modal.classList.remove("open");
+    modal.setAttribute("aria-hidden", "true");
+    document.body.style.overflow = "";
+    if (qvContent) { qvContent.innerHTML = ""; }
+    if (lastFocus && lastFocus.focus) { lastFocus.focus(); }
+  }
+
+  if (modal) {
+    modal.querySelectorAll("[data-close]").forEach(function (el) {
+      el.addEventListener("click", closeModal);
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && modal.classList.contains("open")) { closeModal(); }
+    });
+  }
+
+  document.addEventListener("click", function (e) {
+    var btn = e.target.closest ? e.target.closest("[data-qview]") : null;
+    if (!btn || !modal || !qvContent) return;
+    e.preventDefault();
+    var id = btn.getAttribute("data-qview");
+    qvContent.innerHTML = skeletonQV();
+    openModal();
+    fetch("/Products/QuickView/" + encodeURIComponent(id), { headers: { "X-Requested-With": "fetch" } })
+      .then(function (r) { if (!r.ok) throw new Error("bad status"); return r.text(); })
+      .then(function (html) {
+        qvContent.innerHTML = html;
+        initGallery(qvContent);
+      })
+      .catch(function () {
+        qvContent.innerHTML = '<div class="state" style="grid-column:1/-1"><h3>Couldn’t load preview</h3>' +
+          '<p>Please try opening the full product page instead.</p></div>';
+      });
+  });
+
+  // ---- Infinite scroll with skeleton flash ----
   var grid = document.querySelector(".prods[data-infinite]");
   var sentinel = document.getElementById("scroll-sentinel");
   if (grid) {
     var cards = Array.prototype.slice.call(grid.querySelectorAll(".pcard"));
     var BATCH = 9;
     var shown = Math.min(BATCH, cards.length);
-
-    // hide everything past the first batch
+    var busy = false;
     cards.forEach(function (c, i) { if (i >= shown) { c.style.display = "none"; } });
 
     function hideSentinel() { if (sentinel) { sentinel.style.display = "none"; } }
 
+    function skelRow(n) {
+      var box = document.createElement("div");
+      box.className = "skgrid sk-temp";
+      var one = '<div class="skcard"><div class="skv skel"></div><div class="skb">' +
+        '<div class="skel l w40"></div><div class="skel l w80"></div><div class="skel l w60"></div></div></div>';
+      var html = "";
+      for (var i = 0; i < n; i++) { html += one; }
+      box.innerHTML = html;
+      return box;
+    }
+
     function revealMore() {
-      var end = Math.min(shown + BATCH, cards.length);
-      for (var i = shown; i < end; i++) { cards[i].style.display = ""; }
-      shown = end;
-      if (shown >= cards.length) { hideSentinel(); }
+      if (busy) return;
+      var remaining = cards.length - shown;
+      if (remaining <= 0) { hideSentinel(); return; }
+      busy = true;
+      var n = Math.min(BATCH, remaining);
+      var sk = skelRow(n);
+      grid.parentNode.insertBefore(sk, sentinel || null);
+      setTimeout(function () {
+        var end = shown + n;
+        for (var i = shown; i < end; i++) { cards[i].style.display = ""; }
+        shown = end;
+        if (sk.parentNode) { sk.parentNode.removeChild(sk); }
+        busy = false;
+        if (shown >= cards.length) { hideSentinel(); }
+      }, 420);
     }
 
     if (shown >= cards.length) {
@@ -39,10 +168,9 @@
     } else if (sentinel && "IntersectionObserver" in window) {
       var io = new IntersectionObserver(function (entries) {
         entries.forEach(function (e) { if (e.isIntersecting) { revealMore(); } });
-      }, { rootMargin: "500px 0px" });
+      }, { rootMargin: "400px 0px" });
       io.observe(sentinel);
     } else {
-      // Fallback: no IntersectionObserver — just show everything.
       cards.forEach(function (c) { c.style.display = ""; });
       hideSentinel();
     }

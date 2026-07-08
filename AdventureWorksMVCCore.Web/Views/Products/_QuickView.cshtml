@@ -1,0 +1,57 @@
+@model AdventureWorksMVCCore.Web.Models.Product
+@{
+    var gallery = ViewBag.Gallery as List<string> ?? new List<string>();
+    var main = gallery.FirstOrDefault() ?? "~/Images/catalog/hero.jpg";
+    var cat = ViewBag.Category as string;
+    var sub = ViewBag.Subcategory as string;
+}
+@functions {
+    static string ColorHex(string c) => (c ?? "").ToLowerInvariant() switch
+    {
+        "black" => "#1b1722", "silver" => "#c4c8cf", "white" => "#eef0f3",
+        "red" => "#c0392b", "blue" => "#3454d1", "yellow" => "#e1b12c",
+        "grey" => "#8a8f99", "gray" => "#8a8f99", "multi" => "#8b5cf6",
+        _ => "#8b5cf6"
+    };
+}
+<div class="qv" data-gallery>
+    <div class="qv-vis gmain"><img src="@Url.Content(main)" alt="@Model.Name" /></div>
+    <div class="qv-body">
+        @if (!string.IsNullOrWhiteSpace(sub))
+        {
+            <span class="viewing"><svg><use href="#tag"/></svg> @cat · @sub</span>
+        }
+        <div class="pcode mono">@Model.ProductNumber</div>
+        <h2>@Model.Name</h2>
+        <div class="qv-price num">$@Model.ListPrice.ToString("N2")</div>
+        <span class="instock">In stock — ships in 24h</span>
+        <div class="pattrs" style="margin-top:6px">
+            @if (!string.IsNullOrWhiteSpace(Model.Color))
+            {
+                <span class="attr"><span class="swatch" style="background:@ColorHex(Model.Color)"></span>@Model.Color</span>
+            }
+            @if (!string.IsNullOrWhiteSpace(Model.Size))
+            {
+                <span class="attr">Size @Model.Size</span>
+            }
+            @if (Model.Weight.HasValue)
+            {
+                <span class="attr">@Model.Weight kg</span>
+            }
+        </div>
+        @if (gallery.Count > 1)
+        {
+            <div class="gthumbs" style="margin-top:14px">
+                @for (var i = 0; i < gallery.Count; i++)
+                {
+                    <button type="button" class="gthumb @(i == 0 ? "on" : "")" data-src="@Url.Content(gallery[i])" aria-label="View @(i + 1)">
+                        <img src="@Url.Content(gallery[i])" alt="" />
+                    </button>
+                }
+            </div>
+        }
+        <div class="qv-actions">
+            <a class="btn" asp-controller="Products" asp-action="Details" asp-route-id="@Model.ProductId">View full details <svg><use href="#arrow"/></svg></a>
+        </div>
+    </div>
+</div>

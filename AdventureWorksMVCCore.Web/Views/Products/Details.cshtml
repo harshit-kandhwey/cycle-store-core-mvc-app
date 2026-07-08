@@ -2,7 +2,13 @@
 @{
     ViewBag.Title = Model.Name;
     Layout = "~/Views/Shared/_Layout.cshtml";
-    var img = CatalogImages.For(ViewBag.Category as string, ViewBag.Subcategory as string, Model.ProductNumber, Model.ProductId);
+    var cat = ViewBag.Category as string;
+    var sub = ViewBag.Subcategory as string;
+    var gallery = ViewBag.Gallery as List<string> ?? new List<string>();
+    var mainImg = gallery.FirstOrDefault()
+        ?? CatalogImages.For(cat, sub, Model.ProductNumber, Model.ProductId);
+    var related = ViewBag.Related as List<AdventureWorksMVCCore.Web.Models.ProductCard>
+        ?? new List<AdventureWorksMVCCore.Web.Models.ProductCard>();
 }
 @functions {
     static string ColorHex(string c) => (c ?? "").ToLowerInvariant() switch
@@ -21,19 +27,40 @@
 <div class="wrap">
     <div class="crumb">
         <a asp-controller="Home" asp-action="Index">Home</a> /
-        @if (Model.ProductSubcategoryId.HasValue)
+        @if (!string.IsNullOrWhiteSpace(cat))
         {
-            <a asp-controller="Products" asp-action="Subcategory" asp-route-id="@Model.ProductSubcategoryId">Back to list</a><text> / </text>
+            <a asp-controller="Products" asp-action="Category" asp-route-id="@cat">@cat</a><text> / </text>
+        }
+        @if (Model.ProductSubcategoryId.HasValue && !string.IsNullOrWhiteSpace(sub))
+        {
+            <a asp-controller="Products" asp-action="Subcategory" asp-route-id="@Model.ProductSubcategoryId">@sub</a><text> / </text>
         }
         <b>@Model.Name</b>
     </div>
 
     <div class="detail">
-        <div class="dvis"><img src="@Url.Content(img)" alt="@Model.Name" /></div>
+        <div class="gallery" data-gallery>
+            <div class="dvis gmain"><img src="@Url.Content(mainImg)" alt="@Model.Name" /></div>
+            @if (gallery.Count > 1)
+            {
+                <div class="gthumbs">
+                    @for (var i = 0; i < gallery.Count; i++)
+                    {
+                        <button type="button" class="gthumb @(i == 0 ? "on" : "")" data-src="@Url.Content(gallery[i])" aria-label="View @(i + 1)">
+                            <img src="@Url.Content(gallery[i])" alt="" />
+                        </button>
+                    }
+                </div>
+            }
+        </div>
         <div class="dwrap">
             @if (Model.ProductSubcategoryId.HasValue)
             {
                 <a class="btn ghost" style="padding:8px 14px;font-size:13px" asp-controller="Products" asp-action="Subcategory" asp-route-id="@Model.ProductSubcategoryId"><svg><use href="#back"/></svg> Back</a>
+            }
+            @if (!string.IsNullOrWhiteSpace(sub))
+            {
+                <div style="margin:14px 0 2px"><span class="viewing"><svg><use href="#tag"/></svg> You're viewing · @sub</span></div>
             }
             <h1>@Model.Name</h1>
             <div class="pcode mono">@Model.ProductNumber</div>
@@ -75,4 +102,17 @@
             </div>
         </div>
     </div>
+
+    @if (related.Any())
+    {
+        <div class="related">
+            <h2>More in @sub</h2>
+            <div class="prods">
+                @foreach (var card in related)
+                {
+                    @await Html.PartialAsync("_ProductCard", card)
+                }
+            </div>
+        </div>
+    }
 </div>

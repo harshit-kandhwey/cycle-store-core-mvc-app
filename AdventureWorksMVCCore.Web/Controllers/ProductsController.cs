@@ -61,8 +61,9 @@ namespace AdventureWorksMVCCore.Web.Controllers
             });
         }
 
-        // GET /Products/Subcategory/{id}?sort=&color=
-        public IActionResult Subcategory(int id, string sort = null, string color = null)
+        // GET /Products/Subcategory/{id}?sort=&color=&color=&min=&max=&inStock=
+        public IActionResult Subcategory(int id, string sort = null, string[] color = null,
+            decimal? min = null, decimal? max = null, bool inStock = false)
         {
             var subcategory = _productService.GetSubcategory(id);
             if (subcategory == null || !CatalogCuration.IsSubcategoryIncluded(subcategory.Name))
@@ -70,34 +71,57 @@ namespace AdventureWorksMVCCore.Web.Controllers
                 return NotFound();
             }
 
-            var products = _productService.GetProductsBySubcategory(id)
+            var all = _productService.GetProductsBySubcategory(id)
                 .Where(p => CatalogCuration.IsProductIncluded(p.ProductNumber))
                 .ToList();
 
-            // Colours available for the filter UI (computed before filtering).
-            var colors = products
+            // Facets computed from the full (pre-filter) set.
+            var colors = all
                 .Where(p => !string.IsNullOrWhiteSpace(p.Color))
                 .Select(p => p.Color).Distinct()
                 .OrderBy(c => c).ToList();
+            var priceFloor = all.Any() ? Math.Floor(all.Min(p => p.ListPrice)) : 0m;
+            var priceCeil = all.Any() ? Math.Ceiling(all.Max(p => p.ListPrice)) : 0m;
 
-            if (!string.IsNullOrWhiteSpace(color))
+            var selColors = (color ?? Array.Empty<string>())
+                .Where(c => !string.IsNullOrWhiteSpace(c))
+                .Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+
+            IEnumerable<Product> query = all;
+            if (selColors.Count > 0)
             {
-                products = products
-                    .Where(p => string.Equals(p.Color, color, StringComparison.OrdinalIgnoreCase))
-                    .ToList();
+                query = query.Where(p => selColors.Contains(p.Color, StringComparer.OrdinalIgnoreCase));
+            }
+            if (min.HasValue)
+            {
+                query = query.Where(p => p.ListPrice >= min.Value);
+            }
+            if (max.HasValue)
+            {
+                query = query.Where(p => p.ListPrice <= max.Value);
+            }
+            if (inStock)
+            {
+                query = query.Where(p => p.SellEndDate == null && p.DiscontinuedDate == null);
             }
 
-            products = (sort switch
+            var products = (sort switch
             {
-                "price-asc" => products.OrderBy(p => p.ListPrice),
-                "price-desc" => products.OrderByDescending(p => p.ListPrice),
-                "name-desc" => products.OrderByDescending(p => p.Name),
-                _ => products.OrderBy(p => p.Name)
+                "price-asc" => query.OrderBy(p => p.ListPrice),
+                "price-desc" => query.OrderByDescending(p => p.ListPrice),
+                "name-desc" => query.OrderByDescending(p => p.Name),
+                _ => query.OrderBy(p => p.Name)
             }).ToList();
 
             ViewBag.Sort = sort;
-            ViewBag.Color = color;
             ViewBag.Colors = colors;
+            ViewBag.SelColors = selColors;
+            ViewBag.Min = min;
+            ViewBag.Max = max;
+            ViewBag.PriceFloor = priceFloor;
+            ViewBag.PriceCeil = priceCeil;
+            ViewBag.InStock = inStock;
+            ViewBag.TotalCount = all.Count;
 
             var model = new SubcategoryProductsViewModel
             {
@@ -116,13 +140,50 @@ namespace AdventureWorksMVCCore.Web.Controllers
                 return NotFound();
             }
 
+            string cat = null, sub = null;
             if (product.ProductSubcategoryId.HasValue)
             {
-                var sub = _productService.GetSubcategory(product.ProductSubcategoryId.Value);
-                ViewBag.Category = sub?.ProductCategory?.Name;
-                ViewBag.Subcategory = sub?.Name;
+                var s = _productService.GetSubcategory(product.ProductSubcategoryId.Value);
+                cat = s?.ProductCategory?.Name;
+                sub = s?.Name;
+                ViewBag.Category = cat;
+                ViewBag.Subcategory = sub;
+
+                var related = _productService.GetProductsBySubcategory(product.ProductSubcategoryId.Value)
+                    .Where(p => CatalogCuration.IsProductIncluded(p.ProductNumber) && p.ProductId != product.ProductId)
+                    .Take(4)
+                    .Select((p, i) => new ProductCard
+                    {
+                        Product = p,
+                        Image = CatalogImages.For(cat, sub, p.ProductNumber, i)
+                    }).ToList();
+                ViewBag.Related = related;
             }
+
+            ViewBag.Gallery = CatalogImages.Gallery(cat, sub, product.ProductNumber, product.ProductId);
             return View(product);
+        }
+
+        // GET /Products/QuickView/{id}  — HTML fragment for the quick-view modal
+        public IActionResult QuickView(int id)
+        {
+            var product = _productService.GetProduct(id);
+            if (product == null)
+            {
+                return NotFound();
+            }
+
+            string cat = null, sub = null;
+            if (product.ProductSubcategoryId.HasValue)
+            {
+                var s = _productService.GetSubcategory(product.ProductSubcategoryId.Value);
+                cat = s?.ProductCategory?.Name;
+                sub = s?.Name;
+            }
+            ViewBag.Category = cat;
+            ViewBag.Subcategory = sub;
+            ViewBag.Gallery = CatalogImages.Gallery(cat, sub, product.ProductNumber, product.ProductId);
+            return PartialView("_QuickView", product);
         }
 
         // GET /Products/Search?q=

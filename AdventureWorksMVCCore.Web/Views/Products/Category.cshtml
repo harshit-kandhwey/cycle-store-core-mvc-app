@@ -4,15 +4,6 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
     var catName = Model.Category.Name;
 }
-@functions {
-    static string ColorHex(string c) => (c ?? "").ToLowerInvariant() switch
-    {
-        "black" => "#1b1722", "silver" => "#c4c8cf", "white" => "#eef0f3",
-        "red" => "#c0392b", "blue" => "#3454d1", "yellow" => "#e1b12c",
-        "grey" => "#8a8f99", "gray" => "#8a8f99", "multi" => "#8b5cf6",
-        _ => "#8b5cf6"
-    };
-}
 
 <div class="wrap">
     <div class="crumb">
@@ -25,7 +16,8 @@
         <a class="btn ghost" style="padding:9px 16px;font-size:13px" asp-controller="Home" asp-action="Index"><svg><use href="#back"/></svg> All categories</a>
     </div>
 
-    <div class="filters">
+    <div class="active-filters">
+        <span class="lbl">Browse:</span>
         @foreach (var s in Model.Subcategories)
         {
             <a class="fpill" asp-controller="Products" asp-action="Subcategory" asp-route-id="@s.ProductSubcategoryId">@s.Name</a>
@@ -35,28 +27,7 @@
     <div class="prods" data-infinite>
         @foreach (var card in Model.Products)
         {
-            var p = card.Product;
-            <a class="pcard" asp-controller="Products" asp-action="Details" asp-route-id="@p.ProductId">
-                <div class="pvis"><img src="@Url.Content(card.Image)" alt="@p.Name" loading="lazy" /></div>
-                <div class="pbody">
-                    <div class="pcode">@p.ProductNumber</div>
-                    <h3 class="pname">@p.Name</h3>
-                    <div class="pattrs">
-                        @if (!string.IsNullOrWhiteSpace(p.Color))
-                        {
-                            <span class="attr"><span class="swatch" style="background:@ColorHex(p.Color)"></span>@p.Color</span>
-                        }
-                        @if (!string.IsNullOrWhiteSpace(p.Size))
-                        {
-                            <span class="attr">Size @p.Size</span>
-                        }
-                    </div>
-                    <div class="prow">
-                        <div class="price num">$@p.ListPrice.ToString("N2")</div>
-                        <span class="mini">Details <svg><use href="#arrow"/></svg></span>
-                    </div>
-                </div>
-            </a>
+            @await Html.PartialAsync("_ProductCard", card)
         }
     </div>
     <div id="scroll-sentinel" class="scroll-sentinel">Loading more…</div>

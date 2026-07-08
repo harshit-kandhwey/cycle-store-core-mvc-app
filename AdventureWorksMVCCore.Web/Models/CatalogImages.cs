@@ -93,6 +93,37 @@ namespace AdventureWorksMVCCore.Web.Models
             return "~/Images/catalog/" + name + ".jpg";
         }
 
+        /// <summary>
+        /// Ordered list of images for a product gallery: the per-product photo and any
+        /// numbered angles (…/product/{slug}-2.jpg …-3.jpg) that exist on disk, then the
+        /// subcategory photo, then category photos — deduped and capped. Always non-empty.
+        /// </summary>
+        public static List<string> Gallery(string category, string subcategory, string productNumber, int index)
+        {
+            var list = new List<string>();
+            void Add(string p) { if (!string.IsNullOrEmpty(p) && !list.Contains(p)) list.Add(p); }
+
+            var pslug = Slug(productNumber);
+            if (CatalogCuration.IsProductIncluded(productNumber) && ProductImageExists(pslug))
+            {
+                Add("~/Images/catalog/product/" + pslug + ".jpg");
+                for (var n = 2; n <= 4; n++)
+                    if (ProductImageExists(pslug + "-" + n))
+                        Add("~/Images/catalog/product/" + pslug + "-" + n + ".jpg");
+            }
+
+            var sslug = Slug(subcategory);
+            if (SubSlugs.Contains(sslug))
+                Add("~/Images/catalog/sub/" + sslug + ".jpg");
+
+            var key = CategorySets.Keys.FirstOrDefault(k => (category ?? "").IndexOf(k, StringComparison.OrdinalIgnoreCase) >= 0);
+            var set = key != null ? CategorySets[key] : CategorySets["Bikes"];
+            foreach (var nm in set.Take(3))
+                Add("~/Images/catalog/" + nm + ".jpg");
+
+            return list.Take(5).ToList();
+        }
+
         /// <summary>Banner image for a category card on the home page.</summary>
         public static string Banner(string category)
         {

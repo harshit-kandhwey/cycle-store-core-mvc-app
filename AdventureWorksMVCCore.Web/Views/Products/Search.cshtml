@@ -4,15 +4,6 @@
     ViewBag.Title = string.IsNullOrWhiteSpace(q) ? "Search" : $"Search: {q}";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-@functions {
-    static string ColorHex(string c) => (c ?? "").ToLowerInvariant() switch
-    {
-        "black" => "#1b1722", "silver" => "#c4c8cf", "white" => "#eef0f3",
-        "red" => "#c0392b", "blue" => "#3454d1", "yellow" => "#e1b12c",
-        "grey" => "#8a8f99", "gray" => "#8a8f99", "multi" => "#8b5cf6",
-        _ => "#8b5cf6"
-    };
-}
 
 <div class="wrap">
     <div class="crumb"><a asp-controller="Home" asp-action="Index">Home</a> / <b>Search</b></div>
@@ -33,8 +24,19 @@
 
     @if (!Model.Any())
     {
-        <div class="empty">
-            @(string.IsNullOrWhiteSpace(q) ? "Type a product name or number in the search box above." : "No products match your search. Try a different term.")
+        <div class="state">
+            <span class="ic"><svg><use href="#search"/></svg></span>
+            @if (string.IsNullOrWhiteSpace(q))
+            {
+                <h3>Search the catalog</h3>
+                <p>Type a product name or number in the search box above to find bikes, components, clothing and accessories.</p>
+            }
+            else
+            {
+                <h3>No matches for “@q”</h3>
+                <p>Nothing in the catalog matches that term. Check the spelling or try a broader keyword.</p>
+                <a class="btn" asp-controller="Home" asp-action="Index">Browse all categories</a>
+            }
         </div>
     }
     else
@@ -42,28 +44,7 @@
         <div class="prods" data-infinite>
             @foreach (var card in Model)
             {
-                var p = card.Product;
-                <a class="pcard" asp-controller="Products" asp-action="Details" asp-route-id="@p.ProductId">
-                    <div class="pvis"><img src="@Url.Content(card.Image)" alt="@p.Name" loading="lazy" /></div>
-                    <div class="pbody">
-                        <div class="pcode">@p.ProductNumber</div>
-                        <h3 class="pname">@p.Name</h3>
-                        <div class="pattrs">
-                            @if (!string.IsNullOrWhiteSpace(p.Color))
-                            {
-                                <span class="attr"><span class="swatch" style="background:@ColorHex(p.Color)"></span>@p.Color</span>
-                            }
-                            @if (!string.IsNullOrWhiteSpace(p.Size))
-                            {
-                                <span class="attr">Size @p.Size</span>
-                            }
-                        </div>
-                        <div class="prow">
-                            <div class="price num">$@p.ListPrice.ToString("N2")</div>
-                            <span class="mini">Details <svg><use href="#arrow"/></svg></span>
-                        </div>
-                    </div>
-                </a>
+                @await Html.PartialAsync("_ProductCard", card)
             }
         </div>
         <div id="scroll-sentinel" class="scroll-sentinel">Loading more…</div>
