@@ -1,0 +1,33 @@
+# ============================================================================
+# Cycle Store - central configuration (single source of truth for this VM).
+# Copy to /etc/cyclestore/cyclestore.conf, edit, then run:  sudo cyclestore-apply
+#
+# The same file is used by every tier; cyclestore-apply reads only the keys the
+# tier(s) installed on this host actually need.
+# ============================================================================
+
+# --- Database tier: where the app connects -----------------------------------
+DB_HOST=10.0.0.30          # DB VM IP/hostname
+DB_PORT=1433
+DB_NAME=CYCLE_STORE
+DB_USER=cycleapp
+DB_PASSWORD=StrongPass123!
+
+# --- App tier: the .NET (Kestrel) listener -----------------------------------
+APP_BIND=0.0.0.0
+APP_PORT=5000
+ASPNETCORE_ENVIRONMENT=Production
+# Host header allow-list (ASP.NET Core AllowedHosts). "*" = allow any (simplest
+# for a demo). For production set it to the web host(s), e.g. "shop.example.com".
+# Semicolon-separated. Quotes are required (this file is sourced by bash).
+ALLOWED_HOSTS="*"
+
+# --- Web tier: nginx reverse proxy -------------------------------------------
+# APP_HOST is where nginx forwards requests:
+#   Scenario 1 (Web + App on one VM):  127.0.0.1
+#   Scenario 2 (separate App VM):       the App VM IP, e.g. 10.0.0.20
+APP_HOST=127.0.0.1
+WEB_PORT=80                 # HTTP  (redirects to HTTPS)
+HTTPS_PORT=443             # HTTPS (serves the app)
+TLS_CERT=/etc/cyclestore/tls/cycleweb.crt
+TLS_KEY=/etc/cyclestore/tls/cycleweb.key
