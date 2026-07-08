@@ -59,26 +59,37 @@ namespace AdventureWorksMVCCore.Web.Models
         {
             if (CatalogCuration.IsProductIncluded(productNumber))
             {
-                var slug = Slug(productNumber);
-                if (ProductImageExists(slug))
-                    return "~/Images/catalog/product/" + slug + ".jpg";
+                var path = ProductImagePath(Slug(productNumber));
+                if (path != null) return path;
             }
             return For(category, subcategory, index);
         }
 
-        // Cache disk lookups so we don't stat the file on every render.
-        private static readonly ConcurrentDictionary<string, bool> _productImageCache =
-            new ConcurrentDictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
+        // Accepted on-disk formats for a product photo, in preference order.
+        private static readonly string[] ImageExts = { ".jpg", ".jpeg", ".png", ".webp", ".avif" };
 
-        private static bool ProductImageExists(string slug)
+        // Cache disk lookups so we don't stat the file on every render. The cached value
+        // is the resolved web path ("~/Images/catalog/product/{slug}{ext}"), or null when
+        // no file exists in any accepted format.
+        private static readonly ConcurrentDictionary<string, string> _productImageCache =
+            new ConcurrentDictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+        private static string ProductImagePath(string slug)
         {
-            if (string.IsNullOrEmpty(slug)) return false;
+            if (string.IsNullOrEmpty(slug)) return null;
             return _productImageCache.GetOrAdd(slug, s =>
             {
-                var path = Path.Combine(AppContext.BaseDirectory, "wwwroot", "Images", "catalog", "product", s + ".jpg");
-                return File.Exists(path);
+                var dir = Path.Combine(AppContext.BaseDirectory, "wwwroot", "Images", "catalog", "product");
+                foreach (var ext in ImageExts)
+                {
+                    if (File.Exists(Path.Combine(dir, s + ext)))
+                        return "~/Images/catalog/product/" + s + ext;
+                }
+                return null;
             });
         }
+
+        private static bool ProductImageExists(string slug) => ProductImagePath(slug) != null;
 
         /// <summary>Image path for a product, preferring a subcategory-specific photo.</summary>
         public static string For(string category, string subcategory, int index)
@@ -104,12 +115,18 @@ namespace AdventureWorksMVCCore.Web.Models
             void Add(string p) { if (!string.IsNullOrEmpty(p) && !list.Contains(p)) list.Add(p); }
 
             var pslug = Slug(productNumber);
-            if (CatalogCuration.IsProductIncluded(productNumber) && ProductImageExists(pslug))
+            if (CatalogCuration.IsProductIncluded(productNumber))
             {
-                Add("~/Images/catalog/product/" + pslug + ".jpg");
-                for (var n = 2; n <= 4; n++)
-                    if (ProductImageExists(pslug + "-" + n))
-                        Add("~/Images/catalog/product/" + pslug + "-" + n + ".jpg");
+                var main = ProductImagePath(pslug);
+                if (main != null)
+                {
+                    Add(main);
+                    for (var n = 2; n <= 4; n++)
+                    {
+                        var angle = ProductImagePath(pslug + "-" + n);
+                        if (angle != null) Add(angle);
+                    }
+                }
             }
 
             var sslug = Slug(subcategory);
