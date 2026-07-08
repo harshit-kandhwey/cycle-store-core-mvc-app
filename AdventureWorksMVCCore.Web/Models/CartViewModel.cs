@@ -8,7 +8,7 @@ namespace AdventureWorksMVCCore.Web.Models
         public Product Product { get; set; }
         public int Qty { get; set; }
         public string Image { get; set; }
-        public decimal LineTotal => Product.ListPrice * Qty;
+        public decimal LineTotal => Product == null ? 0 : Product.ListPrice * Qty;
     }
 
     public class CartViewModel

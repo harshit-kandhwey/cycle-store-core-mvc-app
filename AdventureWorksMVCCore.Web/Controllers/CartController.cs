@@ -54,7 +54,7 @@ namespace AdventureWorksMVCCore.Web.Controllers
             CartStore.Add(HttpContext.Session, id, qty);
 
             var count = CartStore.Count(HttpContext.Session);
-            if (Request.Headers["X-Requested-With"] == "fetch")
+            if (Request.Headers.TryGetValue("X-Requested-With", out var requestedWith) && requestedWith == "fetch")
             {
                 return Json(new { count, name = p.Name });
             }

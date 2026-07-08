@@ -152,7 +152,7 @@
       busy = true;
       var n = Math.min(BATCH, remaining);
       var sk = skelRow(n);
-      grid.parentNode.insertBefore(sk, sentinel || null);
+      if (grid.parentNode) { grid.parentNode.insertBefore(sk, sentinel || null); }
       setTimeout(function () {
         var end = shown + n;
         for (var i = shown; i < end; i++) { cards[i].style.display = ""; }
@@ -204,10 +204,12 @@
     })
       .then(function (r) { if (!r.ok) throw new Error("bad status"); return r.json(); })
       .then(function (d) {
-        document.querySelectorAll("[data-cart-count]").forEach(function (dot) {
-          dot.textContent = d.count;
-          dot.classList.remove("hide");
-        });
+        if (d && typeof d.count === "number") {
+          document.querySelectorAll("[data-cart-count]").forEach(function (dot) {
+            dot.textContent = d.count;
+            dot.classList.remove("hide");
+          });
+        }
         btn.innerHTML = "Added ✓";
         setTimeout(function () { btn.innerHTML = orig; btn.disabled = false; }, 1100);
       })

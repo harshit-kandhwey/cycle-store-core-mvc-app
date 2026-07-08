@@ -17,7 +17,15 @@ namespace AdventureWorksMVCCore.Web.Models
         {
             var json = session.GetString(Key);
             if (string.IsNullOrEmpty(json)) return new Dictionary<int, int>();
-            return JsonSerializer.Deserialize<Dictionary<int, int>>(json) ?? new Dictionary<int, int>();
+            try
+            {
+                return JsonSerializer.Deserialize<Dictionary<int, int>>(json) ?? new Dictionary<int, int>();
+            }
+            catch (JsonException)
+            {
+                // Corrupted session payload -> treat as an empty cart rather than 500.
+                return new Dictionary<int, int>();
+            }
         }
 
         public static void Save(ISession session, Dictionary<int, int> cart)
