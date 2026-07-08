@@ -19,16 +19,11 @@ namespace AdventureWorksMVCCore.Web.Models
         public virtual DbSet<ProductCategory> ProductCategory { get; set; }
         public virtual DbSet<ProductSubcategory> ProductSubcategory { get; set; }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            if (!optionsBuilder.IsConfigured)
-            {
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-                optionsBuilder.UseSqlServer(
-                    "Server=sqlrdsdb.cph0bnedghnc.us-east-1.rds.amazonaws.com; " +
-                    "Database=CYCLE_STORE;User Id= DBUser;Password= DBU$er2020;");
-            }
-        }
+        // Connection is configured exclusively through dependency injection in
+        // Startup.ConfigureServices (from the ConnectionStrings__DefaultConnection
+        // configuration value). The scaffolded OnConfiguring fallback that embedded
+        // a hardcoded server/username/password has been removed so no credentials
+        // live in source control.
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -1,3 +1,4 @@
+using System;
 using AdventureWorksMVCCore.Web.Models;
 using AdventureWorksMVCCore.Web.Service.Implementation;
 using AdventureWorksMVCCore.Web.Service.Interface;
@@ -49,6 +50,36 @@ namespace AdventureWorksMVCCore.Web
             {
                 app.UseExceptionHandler("/Home/Error");
             }
+
+            // Security response headers. Runs first so every response — including
+            // static files — is covered. A per-request CSP nonce authorises the one
+            // inline (no-FOUC theme) script in _Layout without opening the policy to
+            // 'unsafe-inline', so injected scripts are still blocked.
+            app.Use(async (context, next) =>
+            {
+                var nonce = Convert.ToBase64String(
+                    System.Security.Cryptography.RandomNumberGenerator.GetBytes(16));
+                context.Items["csp-nonce"] = nonce;
+
+                var headers = context.Response.Headers;
+                headers["X-Content-Type-Options"] = "nosniff";
+                headers["X-Frame-Options"] = "DENY";
+                headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
+                headers["X-XSS-Protection"] = "0"; // legacy filter off per current guidance; CSP covers this
+                headers["Content-Security-Policy"] =
+                    "default-src 'self'; " +
+                    "img-src 'self' data:; " +
+                    "style-src 'self' 'unsafe-inline'; " +
+                    "script-src 'self' 'nonce-" + nonce + "'; " +
+                    "font-src 'self' data:; " +
+                    "object-src 'none'; " +
+                    "base-uri 'self'; " +
+                    "frame-ancestors 'none'; " +
+                    "form-action 'self'";
+
+                await next();
+            });
+
             app.UseStaticFiles();
 
             app.UseRouting();

@@ -189,9 +189,19 @@ namespace AdventureWorksMVCCore.Web.Controllers
         // GET /Products/Search?q=
         public IActionResult Search(string q)
         {
-            var results = _productService.Search(q)
-                .Where(p => CatalogCuration.IsProductIncluded(p.ProductNumber))
-                .ToList();
+            // Normalise and bound the query so an oversized or blank term can't
+            // drive an expensive Contains() scan against the product table.
+            q = (q ?? string.Empty).Trim();
+            if (q.Length > 100)
+            {
+                q = q.Substring(0, 100);
+            }
+
+            var results = string.IsNullOrWhiteSpace(q)
+                ? new List<Product>()
+                : _productService.Search(q)
+                    .Where(p => CatalogCuration.IsProductIncluded(p.ProductNumber))
+                    .ToList();
             var map = _productService.SubcategoryMap();
 
             var cards = results.Select((p, i) =>
