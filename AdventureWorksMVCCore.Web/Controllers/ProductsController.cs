@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using AdventureWorksMVCCore.Web.Models;
@@ -9,10 +10,55 @@ namespace AdventureWorksMVCCore.Web.Controllers
     public class ProductsController : Controller
     {
         private readonly IProductService _productService;
+        private readonly ICategoryService _categoryService;
 
-        public ProductsController(IProductService productService)
+        public ProductsController(IProductService productService, ICategoryService categoryService)
         {
             _productService = productService;
+            _categoryService = categoryService;
+        }
+
+        // GET /Products/Category/{id}   (id = category name, e.g. "Bikes")
+        public IActionResult Category(string id)
+        {
+            var category = _categoryService.GetCategoriesWithSubCategory()
+                .FirstOrDefault(c => string.Equals(c.Name, id, StringComparison.OrdinalIgnoreCase));
+            if (category == null)
+            {
+                return NotFound();
+            }
+
+            var subs = category.ProductSubcategory
+                .Where(s => CatalogCuration.IsSubcategoryIncluded(s.Name))
+                .OrderBy(s => s.Name).ToList();
+            if (subs.Count == 0)
+            {
+                return NotFound();
+            }
+
+            var cards = new List<ProductCard>();
+            var i = 0;
+            foreach (var s in subs)
+            {
+                var prods = _productService.GetProductsBySubcategory(s.ProductSubcategoryId)
+                    .Where(p => CatalogCuration.IsProductIncluded(p.ProductNumber));
+                foreach (var p in prods)
+                {
+                    cards.Add(new ProductCard
+                    {
+                        Product = p,
+                        Image = CatalogImages.For(category.Name, s.Name, p.ProductNumber, i)
+                    });
+                    i++;
+                }
+            }
+
+            return View(new CategoryPageViewModel
+            {
+                Category = category,
+                Subcategories = subs,
+                Products = cards
+            });
         }
 
         // GET /Products/Subcategory/{id}?sort=&color=

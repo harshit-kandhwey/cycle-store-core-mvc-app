@@ -34,10 +34,10 @@
             <div class="nav-panel">
                 <nav class="cats">
                     <a href="/">Home</a>
-                    <a href="/#cat-bikes">Bikes</a>
-                    <a href="/#cat-components">Components</a>
-                    <a href="/#cat-clothing">Clothing</a>
-                    <a href="/#cat-accessories">Accessories</a>
+                    <a asp-controller="Products" asp-action="Category" asp-route-id="Bikes">Bikes</a>
+                    <a asp-controller="Products" asp-action="Category" asp-route-id="Components">Components</a>
+                    <a asp-controller="Products" asp-action="Category" asp-route-id="Clothing">Clothing</a>
+                    <a asp-controller="Products" asp-action="Category" asp-route-id="Accessories">Accessories</a>
                 </nav>
                 <form class="search" action="@Url.Action("Search", "Products")" method="get" role="search">
                     <button type="submit" aria-label="Search"><svg style="width:16px;height:16px"><use href="#search"/></svg></button>
