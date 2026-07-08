@@ -28,17 +28,23 @@ namespace AdventureWorksMVCCore.Web.Models
             "Brakes",
             "Handlebars",
             "Wheels",
+            "Bells",
+            "Cranksets",
+            "Pedals",
 
             // Clothing
+            "Helmets",
             "Gloves",
             "Jerseys",
             "Shorts",
             "Caps",
             "Vests",
             "Tights",
+            "Backpacks",
+            "Sunglasses",
+            "Protectors",
 
             // Accessories
-            "Helmets",
             "Lights",
             "Locks",
             "Pumps",
@@ -47,8 +53,8 @@ namespace AdventureWorksMVCCore.Web.Models
             "Panniers",
             "Bike Racks",
             "Bike Stands",
-            "Hydration Packs",
             "Cleaners",
+            "Tools",
         };
 
         // Products shown within those subcategories (one entry per product number).
@@ -64,13 +70,19 @@ namespace AdventureWorksMVCCore.Web.Models
             "PX-BRK-01", "PX-BRK-02", "PX-BRK-03", "PX-BRK-04", "PX-BRK-05",   // Brakes
             "PX-HBR-01", "PX-HBR-02", "PX-HBR-03",   // Handlebars
             "PX-WHL-01", "PX-WHL-02",   // Wheels
+            "PX-BEL-01",   // Bells
+            "PX-CAS-01", "PX-CAS-02",   // Cranksets
+            "PX-PED-01", "PX-PED-02", "PX-PED-03", "PX-PED-04",   // Pedals
+            "AX-HLM-01", "AX-HLM-02", "AX-HLM-03", "AX-HLM-04", "AX-HLM-05", "AX-HLM-06", "AX-HLM-07", "AX-HLM-08",   // Helmets
             "CX-GLV-01", "CX-GLV-02", "CX-GLV-03", "CX-GLV-04", "CX-GLV-05", "CX-GLV-06", "CX-GLV-07",   // Gloves
             "CX-JRS-01", "CX-JRS-02", "CX-JRS-03", "CX-JRS-04",   // Jerseys
             "CX-SRT-01",   // Shorts
             "CX-CAP-01",   // Caps
             "CX-VST-01",   // Vests
             "CX-TGT-01", "CX-TGT-02",   // Tights
-            "AX-HLM-01", "AX-HLM-02", "AX-HLM-03", "AX-HLM-04", "AX-HLM-05", "AX-HLM-06", "AX-HLM-07", "AX-HLM-08",   // Helmets
+            "CX-BAG-01",   // Backpacks
+            "CX-SUN-01", "CX-SUN-02", "CX-SUN-03", "CX-SUN-04",   // Sunglasses
+            "CX-PRO-01",   // Protectors
             "AX-LGT-01", "AX-LGT-02", "AX-LGT-03",   // Lights
             "AX-LCK-01",   // Locks
             "AX-PMP-01",   // Pumps
@@ -79,8 +91,8 @@ namespace AdventureWorksMVCCore.Web.Models
             "AX-PAN-01", "AX-PAN-02",   // Panniers
             "AX-RCK-01",   // Bike Racks
             "AX-STD-01", "AX-STD-02",   // Bike Stands
-            "AX-HYD-01",   // Hydration Packs
             "AX-CLN-01", "AX-CLN-02", "AX-CLN-03",   // Cleaners
+            "AX-TOL-01", "AX-TOL-02",   // Tools
         };
 
         public static bool IsSubcategoryIncluded(string name)

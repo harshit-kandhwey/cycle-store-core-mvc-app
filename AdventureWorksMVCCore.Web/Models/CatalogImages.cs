@@ -114,6 +114,10 @@ namespace AdventureWorksMVCCore.Web.Models
             var list = new List<string>();
             void Add(string p) { if (!string.IsNullOrEmpty(p) && !list.Contains(p)) list.Add(p); }
 
+            // Only real per-product photos: the main image plus any numbered angle shots
+            // (…-2, …-3, …) that actually exist on disk. We deliberately do NOT pad the
+            // gallery with subcategory/category stock images — those are unrelated to the
+            // product and showed up as "wrong" thumbnails under the main photo.
             var pslug = Slug(productNumber);
             if (CatalogCuration.IsProductIncluded(productNumber))
             {
@@ -121,7 +125,7 @@ namespace AdventureWorksMVCCore.Web.Models
                 if (main != null)
                 {
                     Add(main);
-                    for (var n = 2; n <= 4; n++)
+                    for (var n = 2; n <= 6; n++)
                     {
                         var angle = ProductImagePath(pslug + "-" + n);
                         if (angle != null) Add(angle);
@@ -129,16 +133,11 @@ namespace AdventureWorksMVCCore.Web.Models
                 }
             }
 
-            var sslug = Slug(subcategory);
-            if (SubSlugs.Contains(sslug))
-                Add("~/Images/catalog/sub/" + sslug + ".jpg");
+            // Fallback only when the product has no photo at all, so the page still has a hero.
+            if (list.Count == 0)
+                Add(For(category, subcategory, index));
 
-            var key = CategorySets.Keys.FirstOrDefault(k => (category ?? "").IndexOf(k, StringComparison.OrdinalIgnoreCase) >= 0);
-            var set = key != null ? CategorySets[key] : CategorySets["Bikes"];
-            foreach (var nm in set.Take(3))
-                Add("~/Images/catalog/" + nm + ".jpg");
-
-            return list.Take(5).ToList();
+            return list;
         }
 
         /// <summary>Banner image for a category card on the home page.</summary>
