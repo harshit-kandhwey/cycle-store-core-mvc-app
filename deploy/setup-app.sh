@@ -37,7 +37,7 @@ if [ ! -f /etc/cyclestore/cyclestore.conf ]; then
   sudo chmod 600 /etc/cyclestore/cyclestore.conf
   echo "   -> installed default /etc/cyclestore/cyclestore.conf (EDIT DB_HOST etc.)"
 fi
-sudo install -m 755 "$SCRIPT_DIR/bin/cyclestore-apply.sh" /usr/local/bin/cyclestore-apply
+sudo install -m 755 "$SCRIPT_DIR/tools/cyclestore-apply.sh" /usr/local/bin/cyclestore-apply
 sudo ln -sf /usr/local/bin/cyclestore-apply /usr/sbin/cyclestore-apply
 sudo cp "$SCRIPT_DIR/config/cycleapp.service" /etc/systemd/system/cycleapp.service
 

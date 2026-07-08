@@ -29,7 +29,7 @@ if [ ! -f /etc/cyclestore/cyclestore.conf ]; then
   echo "   -> installed default /etc/cyclestore/cyclestore.conf (SET APP_HOST)"
 fi
 sudo cp "$SCRIPT_DIR/config/nginx-cycleapp.conf.tmpl" /etc/cyclestore/nginx-cycleapp.conf.tmpl
-sudo install -m 755 "$SCRIPT_DIR/bin/cyclestore-apply.sh" /usr/local/bin/cyclestore-apply
+sudo install -m 755 "$SCRIPT_DIR/tools/cyclestore-apply.sh" /usr/local/bin/cyclestore-apply
 sudo ln -sf /usr/local/bin/cyclestore-apply /usr/sbin/cyclestore-apply
 
 echo "== 3. self-signed TLS cert (if missing) =="

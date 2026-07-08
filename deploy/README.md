@@ -68,7 +68,7 @@ Browse **https://VM1**.
 | `deploy/setup-app.sh`    | installs .NET 8, publishes this checkout to `/opt/cycleapp/publish`, runs it as `cycleapp.service` on :5000 |
 | `deploy/setup-web.sh`    | installs nginx, self-signed TLS, renders the reverse-proxy vhost |
 | `deploy/setup-webapp.sh` | Scenario 1: both of the above on one VM |
-| `deploy/bin/cyclestore-apply.sh` | renders runtime config from `cyclestore.conf`; auto-detects app/web/both |
+| `deploy/tools/cyclestore-apply.sh` | renders runtime config from `cyclestore.conf`; auto-detects app/web/both |
 | `deploy/config/cyclestore.conf.example` | the single config: DB, app listener, AllowedHosts, nginx proxy target, TLS |
 | `deploy/config/cycleapp.service` / `nginx-cycleapp.conf.tmpl` | systemd unit / nginx template |
 | `deploy/db/` | SQL Server setup guide + `catalog_pivot.sql` seed |
