@@ -88,7 +88,6 @@
                         <div class="spec"><dt>Weight</dt><dd class="num">@Model.Weight</dd></div>
                     }
                     <div class="spec"><dt>List price</dt><dd class="num">$@Model.ListPrice.ToString("N2")</dd></div>
-                    <div class="spec"><dt>Standard cost</dt><dd class="num">$@Model.StandardCost.ToString("N2")</dd></div>
                     @if (!string.IsNullOrWhiteSpace(Model.ProductLine))
                     {
                         <div class="spec"><dt>Product line</dt><dd>@Line(Model.ProductLine)</dd></div>

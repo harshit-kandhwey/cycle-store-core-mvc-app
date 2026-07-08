@@ -31,6 +31,8 @@ namespace AdventureWorksMVCCore.Web.Models
             "Bells",
             "Cranksets",
             "Pedals",
+            "Bottom Brackets",
+            "Forks",
 
             // Clothing
             "Helmets",
@@ -43,6 +45,8 @@ namespace AdventureWorksMVCCore.Web.Models
             "Backpacks",
             "Sunglasses",
             "Protectors",
+            "Shoes",
+            "Socks",
 
             // Accessories
             "Lights",
@@ -71,8 +75,10 @@ namespace AdventureWorksMVCCore.Web.Models
             "PX-HBR-01", "PX-HBR-02", "PX-HBR-03",   // Handlebars
             "PX-WHL-01", "PX-WHL-02",   // Wheels
             "PX-BEL-01",   // Bells
-            "PX-CAS-01", "PX-CAS-02",   // Cranksets
+            "PX-CAS-01", "PX-CAS-02", "PX-CRK-01", "PX-CRK-02", "PX-CRK-03", "PX-CRK-04",   // Cranksets
             "PX-PED-01", "PX-PED-02", "PX-PED-03", "PX-PED-04",   // Pedals
+            "PX-BB-01", "PX-BB-02", "PX-BB-03",   // Bottom Brackets
+            "PX-FRK-01", "PX-FRK-02", "PX-FRK-03", "PX-FRK-04", "PX-FRK-05",   // Forks
             "AX-HLM-01", "AX-HLM-02", "AX-HLM-03", "AX-HLM-04", "AX-HLM-05", "AX-HLM-06", "AX-HLM-07", "AX-HLM-08",   // Helmets
             "CX-GLV-01", "CX-GLV-02", "CX-GLV-03", "CX-GLV-04", "CX-GLV-05", "CX-GLV-06", "CX-GLV-07",   // Gloves
             "CX-JRS-01", "CX-JRS-02", "CX-JRS-03", "CX-JRS-04",   // Jerseys
@@ -83,6 +89,8 @@ namespace AdventureWorksMVCCore.Web.Models
             "CX-BAG-01",   // Backpacks
             "CX-SUN-01", "CX-SUN-02", "CX-SUN-03", "CX-SUN-04",   // Sunglasses
             "CX-PRO-01",   // Protectors
+            "CX-SHO-01", "CX-SHO-02", "CX-SHO-03", "CX-SHO-04", "CX-SHO-05", "CX-SHO-06", "CX-SHO-07", "CX-SHO-08", "CX-SHO-09",   // Shoes
+            "CX-SOK-01", "CX-SOK-02", "CX-SOK-03", "CX-SOK-04", "CX-SOK-05", "CX-SOK-06",   // Socks
             "AX-LGT-01", "AX-LGT-02", "AX-LGT-03",   // Lights
             "AX-LCK-01",   // Locks
             "AX-PMP-01",   // Pumps
