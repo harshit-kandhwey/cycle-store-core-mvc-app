@@ -1,6 +1,7 @@
 # Features
 
 ## Browsing
+
 - **Home** — category cards; only curated, non-empty categories shown.
 - **Category page** (`/Products/Category/{name}`) — subcategory tiles + products.
 - **Subcategory page** (`/Products/Subcategory/{id}`) — the filterable product grid.
@@ -10,6 +11,7 @@
 - **Breadcrumb**, active-nav highlight, and a "you're viewing" tag.
 
 ## Product presentation
+
 - **Image gallery** — main photo + real angle shots (`-2/-3/-4`); no stock padding.
 - **Quick view** — modal fetched from `/Products/QuickView/{id}` (no full navigation).
 - **Ratings & reviews** — star rating + review count on cards; a reviews block on
@@ -20,10 +22,12 @@
 - **Descriptions** — generated per product from brand + subcategory + attributes.
 
 ## Filtering & sorting (Subcategory)
+
 Multi-**colour**, **brand**, **price range**, and **in-stock** facets; sort by name
 or price; removable active-filter chips; rich empty state.
 
 ## Cart & checkout
+
 - **Guest cart** in the session (no login) — `CartStore` / `CartController`.
 - **Add to cart** from cards, quick-view, and Details via `fetch` with a CSRF
   token; the header badge updates live.
@@ -33,6 +37,7 @@ or price; removable active-filter chips; rich empty state.
   no order tables). All POSTs are `[ValidateAntiForgeryToken]`.
 
 ## UX
+
 - **Dark / light theme** — no-flash inline switch, follows OS, persisted in
   `localStorage`, toggle in the header.
 - **Loading skeletons** during infinite-scroll reveal and quick-view fetch.
@@ -41,6 +46,7 @@ or price; removable active-filter chips; rich empty state.
 - **Lazy-loaded** product images.
 
 ## Security
+
 - Nonce-based **Content-Security-Policy** + `X-Frame-Options`,
   `X-Content-Type-Options`, `Referrer-Policy`.
 - **Host-header allow-list** (`AllowedHosts`, from config).

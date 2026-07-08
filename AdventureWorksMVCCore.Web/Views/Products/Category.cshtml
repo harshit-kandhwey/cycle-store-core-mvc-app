@@ -12,23 +12,27 @@
     </div>
 
     <div class="toolbar">
-        <h2>@catName <span class="muted">· @Model.Products.Count product@(Model.Products.Count == 1 ? "" : "s") across @Model.Subcategories.Count subcategor@(Model.Subcategories.Count == 1 ? "y" : "ies")</span></h2>
-        <a class="btn ghost" style="padding:9px 16px;font-size:13px" asp-controller="Home" asp-action="Index"><svg><use href="#back"/></svg> All categories</a>
-    </div>
+        <h2>@catName <span class="muted">· @Model.Products.Count product@(Model.Products.Count == 1 ? "" : "s") across
+            @Model.Subcategories.Count subcategor@(Model.Subcategories.Count == 1 ? "y" : "ies")</span></h2>
+            <a class="btn ghost" style="padding:9px 16px;font-size:13px" asp-controller="Home" asp-action="Index"><svg>
+                <use href="#back" />
+            </svg> All categories</a>
+        </div>
 
-    <div class="active-filters">
-        <span class="lbl">Browse:</span>
-        @foreach (var s in Model.Subcategories)
-        {
-            <a class="fpill" asp-controller="Products" asp-action="Subcategory" asp-route-id="@s.ProductSubcategoryId">@s.Name</a>
-        }
-    </div>
+        <div class="active-filters">
+            <span class="lbl">Browse:</span>
+            @foreach (var s in Model.Subcategories)
+            {
+                <a class="fpill" asp-controller="Products" asp-action="Subcategory"
+                   asp-route-id="@s.ProductSubcategoryId">@s.Name</a>
+            }
+        </div>
 
-    <div class="prods" data-infinite>
-        @foreach (var card in Model.Products)
-        {
-            @await Html.PartialAsync("_ProductCard", card)
-        }
+        <div class="prods" data-infinite>
+            @foreach (var card in Model.Products)
+            {
+                @await Html.PartialAsync("_ProductCard", card)
+            }
+        </div>
+        <div id="scroll-sentinel" class="scroll-sentinel">Loading more…</div>
     </div>
-    <div id="scroll-sentinel" class="scroll-sentinel">Loading more…</div>
-</div>

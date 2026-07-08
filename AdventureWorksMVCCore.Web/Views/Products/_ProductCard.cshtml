@@ -2,9 +2,15 @@
 @functions {
     static string ColorHex(string c) => (c ?? "").ToLowerInvariant() switch
     {
-        "black" => "#1b1722", "silver" => "#c4c8cf", "white" => "#eef0f3",
-        "red" => "#c0392b", "blue" => "#3454d1", "yellow" => "#e1b12c",
-        "grey" => "#8a8f99", "gray" => "#8a8f99", "multi" => "#8b5cf6",
+        "black" => "#1b1722",
+        "silver" => "#c4c8cf",
+        "white" => "#eef0f3",
+        "red" => "#c0392b",
+        "blue" => "#3454d1",
+        "yellow" => "#e1b12c",
+        "grey" => "#8a8f99",
+        "gray" => "#8a8f99",
+        "multi" => "#8b5cf6",
         _ => "#8b5cf6"
     };
 }
@@ -22,11 +28,14 @@
         {
             <span class="sale-badge">-@off%</span>
         }
-        <a class="pvis-link" asp-controller="Products" asp-action="Details" asp-route-id="@p.ProductId" aria-label="@p.Name">
+        <a class="pvis-link" asp-controller="Products" asp-action="Details" asp-route-id="@p.ProductId"
+           aria-label="@p.Name">
             <img src="@Url.Content(Model.Image)" alt="@p.Name" loading="lazy" />
         </a>
         <button class="qview" type="button" data-qview="@p.ProductId" aria-label="Quick view @p.Name">
-            <svg><use href="#zoom"/></svg> Quick view
+            <svg>
+                <use href="#zoom" />
+            </svg> Quick view
         </button>
     </div>
     <a class="pbody" asp-controller="Products" asp-action="Details" asp-route-id="@p.ProductId">
@@ -54,10 +63,14 @@
                     <span class="was num">$@was.ToString("N2")</span>
                 }
             </div>
-            <span class="mini">Details <svg><use href="#arrow"/></svg></span>
+            <span class="mini">Details <svg>
+                <use href="#arrow" />
+            </svg></span>
         </div>
     </a>
     <button class="btn addcart" type="button" data-add-cart="@p.ProductId" aria-label="Add @p.Name to cart">
-        Add to cart <svg><use href="#cart"/></svg>
-    </button>
+        Add to cart <svg>
+        <use href="#cart" />
+    </svg>
+</button>
 </div>

@@ -13,6 +13,7 @@ served live from SQL Server across a classic web / app / database tier split.
 > Original code remains under the upstream licence (see [`LICENSE`](LICENSE)).
 
 ## Highlights
+
 - **Curated catalog** — 114 real cycling products across 36 subcategories
   (bikes, components, clothing, accessories), each with a hand-matched photo.
 - **Rich product browsing** — category & subcategory pages, breadcrumb, quick-view
@@ -28,6 +29,7 @@ served live from SQL Server across a classic web / app / database tier split.
   search input bounds, no secrets in source.
 
 ## Repository layout
+
 ```
 AdventureWorksMVCCore.Web/   the ASP.NET Core MVC app (controllers, views, models, wwwroot)
 AdventureWorksMVCCore.sln    solution
@@ -38,6 +40,7 @@ legacy/                      obsolete upstream AWS artifacts (Proton / ECS / RDS
 ```
 
 ## Quick start
+
 The database is a separate SQL Server VM in both supported topologies:
 
 - **Scenario 1** — Web + App on one VM, Database on another.
@@ -60,22 +63,26 @@ applied with `sudo cyclestore-apply`. Change a host or password later? Edit that
 file and re-run; nothing else to touch.
 
 ## Documentation
-| Doc | What |
-|-----|------|
-| [docs/01-architecture.md](docs/01-architecture.md) | tiers, request flow, tech stack |
-| [docs/02-deployment.md](docs/02-deployment.md) | the two topologies, step by step |
+
+| Doc                                                  | What                                        |
+| ---------------------------------------------------- | ------------------------------------------- |
+| [docs/01-architecture.md](docs/01-architecture.md)   | tiers, request flow, tech stack             |
+| [docs/02-deployment.md](docs/02-deployment.md)       | the two topologies, step by step            |
 | [docs/03-configuration.md](docs/03-configuration.md) | `cyclestore.conf` keys + `cyclestore-apply` |
-| [docs/04-catalog-data.md](docs/04-catalog-data.md) | catalog curation, images, adding products |
-| [docs/05-features.md](docs/05-features.md) | the storefront & e-commerce features |
+| [docs/04-catalog-data.md](docs/04-catalog-data.md)   | catalog curation, images, adding products   |
+| [docs/05-features.md](docs/05-features.md)           | the storefront & e-commerce features        |
 
 ## Tech stack
+
 ASP.NET Core MVC (.NET 8) · Entity Framework Core 8 · SQL Server 2019 ·
 Razor views · vanilla CSS/JS (no build step) · nginx (reverse proxy + TLS) ·
 systemd (Kestrel service).
 
 ## Local development
+
 Set the connection string (`ConnectionStrings__DefaultConnection`) via environment
 or `appsettings.Development.json`, then:
+
 ```bash
 dotnet run --project AdventureWorksMVCCore.Web
 ```

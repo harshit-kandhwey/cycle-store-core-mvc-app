@@ -1,6 +1,7 @@
 # Catalog & data
 
 ## How the catalog is composed
+
 1. **Database** holds the products, subcategories, and categories
    (`Production.Product` / `ProductSubcategory` / `ProductCategory`).
 2. **`CatalogCuration`** (app-side allow-list) decides which subcategories and
@@ -12,6 +13,7 @@
    ratings/reviews, and a compare-at ("was") sale price — all computed, no DB columns.
 
 ## The seeded catalog
+
 `deploy/db/catalog_pivot.sql` creates the store's **114 curated products**
 (ProductID 1000–1113) and 6 extra subcategories, moves **Helmets** under Clothing,
 and removes duplicate size-variants from the original AdventureWorks rows. It is
@@ -27,6 +29,7 @@ Product-number prefixes:
 | `AX-*` | Accessories (helmets, lights, locks, pumps, bottles, bags, …) |
 
 ## Product images
+
 - Live under `wwwroot/Images/catalog/product/`, named by product number in
   lowercase (e.g. `bx-mtb-01.avif`, `cx-sho-03.jpg`).
 - Any of `.jpg .jpeg .png .webp .avif` is accepted and resolved automatically.
@@ -34,6 +37,7 @@ Product-number prefixes:
 - Only real product photos appear in the gallery; there is no stock-image padding.
 
 ## Adding a product
+
 1. Insert a row into `Production.Product` with a new `ProductID` (≥ 1114 to avoid
    clashes), a unique `ProductNumber`, `ListPrice`, and an existing
    `ProductSubcategoryID`. (See the `IF NOT EXISTS … INSERT` pattern in
@@ -44,11 +48,13 @@ Product-number prefixes:
 4. Rebuild/redeploy the app tier (`git pull` + `deploy/setup-app.sh`).
 
 ## Adding a subcategory
+
 Insert into `Production.ProductSubcategory` (pick an unused ID; not an identity
 column) under the right `ProductCategoryID` (1 Bikes, 2 Components, 3 Clothing,
 4 Accessories), then add its name to `CatalogCuration.Subcategories`.
 
 ## Database facts
+
 - `ProductID` is **not** an identity column — supply it explicitly.
 - Schema is `Production` (not `dbo`); database name is `CYCLE_STORE`.
 - `cycleapp` has `SELECT/INSERT/UPDATE/DELETE` on the `Production` schema.

@@ -28,21 +28,21 @@ namespace AdventureWorksMVCCore.Web.Models
 
         private static readonly Dictionary<string, string[]> CategorySets =
             new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase)
-        {
-            ["Bikes"] = new[] { "bikes-1", "bikes-2", "bikes-3", "bikes-4", "bikes-5", "bikes-6" },
-            ["Components"] = new[] { "components-1", "components-2", "components-3" },
-            ["Clothing"] = new[] { "clothing-1", "clothing-2", "clothing-3" },
-            ["Accessories"] = new[] { "accessories-1", "accessories-2", "accessories-3" },
-        };
+            {
+                ["Bikes"] = new[] { "bikes-1", "bikes-2", "bikes-3", "bikes-4", "bikes-5", "bikes-6" },
+                ["Components"] = new[] { "components-1", "components-2", "components-3" },
+                ["Clothing"] = new[] { "clothing-1", "clothing-2", "clothing-3" },
+                ["Accessories"] = new[] { "accessories-1", "accessories-2", "accessories-3" },
+            };
 
         private static readonly Dictionary<string, string> CategoryBanner =
             new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-        {
-            ["Bikes"] = "sub/road-bikes",
-            ["Components"] = "sub/chains",
-            ["Clothing"] = "sub/jerseys",
-            ["Accessories"] = "sub/helmets",
-        };
+            {
+                ["Bikes"] = "sub/road-bikes",
+                ["Components"] = "sub/chains",
+                ["Clothing"] = "sub/jerseys",
+                ["Accessories"] = "sub/helmets",
+            };
 
         public static string Slug(string s)
         {

@@ -34,14 +34,21 @@
         if (stk) parts.Add("inStock=true");
         return baseUrl + (parts.Count > 0 ? "?" + string.Join("&", parts) : "");
     }
-    var hasFilters = selColors.Any() || selBrands.Any() || min.HasValue || max.HasValue || inStock || (!string.IsNullOrEmpty(curSort) && curSort != "name");
+    var hasFilters = selColors.Any() || selBrands.Any() || min.HasValue || max.HasValue || inStock ||
+(!string.IsNullOrEmpty(curSort) && curSort != "name");
 }
 @functions {
     static string ColorHex(string c) => (c ?? "").ToLowerInvariant() switch
     {
-        "black" => "#1b1722", "silver" => "#c4c8cf", "white" => "#eef0f3",
-        "red" => "#c0392b", "blue" => "#3454d1", "yellow" => "#e1b12c",
-        "grey" => "#8a8f99", "gray" => "#8a8f99", "multi" => "#8b5cf6",
+        "black" => "#1b1722",
+        "silver" => "#c4c8cf",
+        "white" => "#eef0f3",
+        "red" => "#c0392b",
+        "blue" => "#3454d1",
+        "yellow" => "#e1b12c",
+        "grey" => "#8a8f99",
+        "gray" => "#8a8f99",
+        "multi" => "#8b5cf6",
         _ => "#8b5cf6"
     };
 }
@@ -57,7 +64,10 @@
         <h2>@Model.Subcategory.Name
             <span class="muted">· @Model.Products.Count of @totalCount product@(totalCount == 1 ? "" : "s")</span>
         </h2>
-        <a class="btn ghost" style="padding:9px 16px;font-size:13px" asp-controller="Products" asp-action="Category" asp-route-id="@catName"><svg><use href="#back"/></svg> All @catName</a>
+        <a class="btn ghost" style="padding:9px 16px;font-size:13px" asp-controller="Products" asp-action="Category"
+           asp-route-id="@catName"><svg>
+            <use href="#back" />
+        </svg> All @catName</a>
     </div>
 
     <form class="filterbar" method="get" asp-action="Subcategory" asp-route-id="@subId">
@@ -73,101 +83,125 @@
             </label>
             <span class="flabel">Price</span>
             <span class="price-inputs">
-                <input type="number" name="min" value="@(min?.ToString("0.##"))" placeholder="@priceFloor.ToString("0")" min="0" step="1" aria-label="Minimum price" />
+                <input type="number" name="min" value="@(min?.ToString("0.##"))" placeholder="@priceFloor.ToString("0")"
+                       min="0" step="1" aria-label="Minimum price" />
                 <span>–</span>
-                <input type="number" name="max" value="@(max?.ToString("0.##"))" placeholder="@priceCeil.ToString("0")" min="0" step="1" aria-label="Maximum price" />
+                <input type="number" name="max" value="@(max?.ToString("0.##"))" placeholder="@priceCeil.ToString("0")"
+                       min="0" step="1" aria-label="Maximum price" />
             </span>
-            <label class="check"><input type="checkbox" name="inStock" value="true" @(inStock ? "checked" : "") /> In stock only</label>
-            <button class="btn" type="submit" style="padding:9px 18px;font-size:14px;margin-left:auto">Apply</button>
-        </div>
-        @if (colors.Any())
-        {
-            <div class="frow">
-                <span class="flabel">Colour</span>
-                <div class="filters" style="margin:0">
-                    @foreach (var c in colors)
-                    {
-                        <label class="fpill">
-                            <input type="checkbox" name="color" value="@c" @(selColors.Contains(c, StringComparer.OrdinalIgnoreCase) ? "checked" : "") />
-                            <span class="swatch" style="background:@ColorHex(c)"></span>@c
-                        </label>
-                    }
-                </div>
+            <label class="check"><input type="checkbox" name="inStock" value="true" @(inStock ? "checked" : "") /> In
+                stock only</label>
+                <button class="btn" type="submit" style="padding:9px 18px;font-size:14px;margin-left:auto">Apply</button>
             </div>
-        }
-        @if (brands.Any())
-        {
-            <div class="frow">
-                <span class="flabel">Brand</span>
-                <div class="filters" style="margin:0">
-                    @foreach (var b in brands)
-                    {
-                        <label class="fpill">
-                            <input type="checkbox" name="brand" value="@b" @(selBrands.Contains(b, StringComparer.OrdinalIgnoreCase) ? "checked" : "") />
-                            @b
-                        </label>
-                    }
+            @if (colors.Any())
+            {
+                <div class="frow">
+                    <span class="flabel">Colour</span>
+                    <div class="filters" style="margin:0">
+                        @foreach (var c in colors)
+                        {
+                            <label class="fpill">
+                                <input type="checkbox" name="color" value="@c" @(selColors.Contains(c,
+                                                                                                      StringComparer.OrdinalIgnoreCase) ? "checked" : "") />
+                                <span class="swatch" style="background:@ColorHex(c)"></span>@c
+                            </label>
+                        }
+                    </div>
                 </div>
-            </div>
-        }
-    </form>
+            }
+            @if (brands.Any())
+            {
+                <div class="frow">
+                    <span class="flabel">Brand</span>
+                    <div class="filters" style="margin:0">
+                        @foreach (var b in brands)
+                        {
+                            <label class="fpill">
+                                <input type="checkbox" name="brand" value="@b" @(selBrands.Contains(b,
+                                                                                                      StringComparer.OrdinalIgnoreCase) ? "checked" : "") />
+                                @b
+                            </label>
+                        }
+                    </div>
+                </div>
+            }
+        </form>
 
-    @if (hasFilters)
-    {
-        <div class="active-filters">
-            <span class="lbl">Active:</span>
-            @if (!string.IsNullOrEmpty(curSort) && curSort != "name")
-            {
-                var label = sorts.FirstOrDefault(x => x.v == curSort)?.t ?? curSort;
-                <a class="afchip" href="@Q(selColors, selBrands, null, min, max, inStock)">@label <svg><use href="#close"/></svg></a>
-            }
-            @foreach (var c in selColors)
-            {
-                <a class="afchip" href="@Q(selColors.Where(x => !string.Equals(x, c, StringComparison.OrdinalIgnoreCase)), selBrands, curSort, min, max, inStock)">@c <svg><use href="#close"/></svg></a>
-            }
-            @foreach (var b in selBrands)
-            {
-                <a class="afchip" href="@Q(selColors, selBrands.Where(x => !string.Equals(x, b, StringComparison.OrdinalIgnoreCase)), curSort, min, max, inStock)">@b <svg><use href="#close"/></svg></a>
-            }
-            @if (min.HasValue || max.HasValue)
-            {
-                <a class="afchip" href="@Q(selColors, selBrands, curSort, null, null, inStock)">
-                    @(min.HasValue ? "$" + min.Value.ToString("0") : "$0") – @(max.HasValue ? "$" + max.Value.ToString("0") : "any")
-                    <svg><use href="#close"/></svg>
-                </a>
-            }
-            @if (inStock)
-            {
-                <a class="afchip" href="@Q(selColors, selBrands, curSort, min, max, false)">In stock <svg><use href="#close"/></svg></a>
-            }
-            <a class="afchip clear" href="@baseUrl">Clear all</a>
-        </div>
-    }
-
-    @if (!Model.Products.Any())
-    {
-        <div class="state">
-            <span class="ic"><svg><use href="#box"/></svg></span>
-            <h3>No products match these filters</h3>
-            <p>Try widening the price range or clearing a colour to see more of the @Model.Subcategory.Name range.</p>
-            <a class="btn" href="@baseUrl">Clear filters</a>
-        </div>
-    }
-    else
-    {
-        <div class="prods" data-infinite>
-            @{ var i = 0; }
-            @foreach (var p in Model.Products)
-            {
-                var card = new AdventureWorksMVCCore.Web.Models.ProductCard
+        @if (hasFilters)
+        {
+            <div class="active-filters">
+                <span class="lbl">Active:</span>
+                @if (!string.IsNullOrEmpty(curSort) && curSort != "name")
                 {
-                    Product = p,
-                    Image = CatalogImages.For(catName, Model.Subcategory.Name, p.ProductNumber, i)
-                };
-                i++;
-                @await Html.PartialAsync("_ProductCard", card)
-            }
-        </div>
-        <div id="scroll-sentinel" class="scroll-sentinel">Loading more…</div>
-    }
-</div>
+                    var label = sorts.FirstOrDefault(x => x.v == curSort)?.t ?? curSort;
+                    <a class="afchip" href="@Q(selColors, selBrands, null, min, max, inStock)">@label <svg>
+                        <use href="#close" />
+                    </svg></a>
+                }
+                @foreach (var c in selColors)
+                {
+                    <a class="afchip"
+                       href="@Q(selColors.Where(x => !string.Equals(x, c, StringComparison.OrdinalIgnoreCase)), selBrands, curSort, min, max, inStock)">@c
+                        <svg>
+                            <use href="#close" />
+                        </svg></a>
+                    }
+                    @foreach (var b in selBrands)
+                    {
+                        <a class="afchip"
+                           href="@Q(selColors, selBrands.Where(x => !string.Equals(x, b, StringComparison.OrdinalIgnoreCase)), curSort, min, max, inStock)">@b
+                            <svg>
+                                <use href="#close" />
+                            </svg></a>
+                        }
+                        @if (min.HasValue || max.HasValue)
+                        {
+                            <a class="afchip" href="@Q(selColors, selBrands, curSort, null, null, inStock)">
+                                @(min.HasValue ? "$" + min.Value.ToString("0") : "$0") – @(max.HasValue ? "$" + max.Value.ToString("0") :
+                                "any")
+                                <svg>
+                                    <use href="#close" />
+                                </svg>
+                            </a>
+                        }
+                        @if (inStock)
+                        {
+                            <a class="afchip" href="@Q(selColors, selBrands, curSort, min, max, false)">In stock <svg>
+                                <use href="#close" />
+                            </svg></a>
+                        }
+                        <a class="afchip clear" href="@baseUrl">Clear all</a>
+                    </div>
+                }
+
+                @if (!Model.Products.Any())
+                {
+                    <div class="state">
+                        <span class="ic"><svg>
+                            <use href="#box" />
+                        </svg></span>
+                        <h3>No products match these filters</h3>
+                        <p>Try widening the price range or clearing a colour to see more of the @Model.Subcategory.Name range.</p>
+                        <a class="btn" href="@baseUrl">Clear filters</a>
+                    </div>
+                }
+                else
+                {
+                    <div class="prods" data-infinite>
+                        @{
+                            var i = 0;
+                        }
+                        @foreach (var p in Model.Products)
+                        {
+                            var card = new AdventureWorksMVCCore.Web.Models.ProductCard
+                            {
+                                Product = p,
+                                Image = CatalogImages.For(catName, Model.Subcategory.Name, p.ProductNumber, i)
+                            };
+                            i++;
+                            @await Html.PartialAsync("_ProductCard", card)
+                        }
+                    </div>
+                    <div id="scroll-sentinel" class="scroll-sentinel">Loading more…</div>
+                }
+            </div>

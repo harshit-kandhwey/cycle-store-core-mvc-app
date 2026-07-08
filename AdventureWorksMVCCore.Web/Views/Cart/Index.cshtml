@@ -8,13 +8,17 @@
 
     <div class="toolbar">
         <h2>Your cart <span class="muted">· @Model.Count item@(Model.Count == 1 ? "" : "s")</span></h2>
-        <a class="btn ghost" style="padding:9px 16px;font-size:13px" asp-controller="Home" asp-action="Index"><svg><use href="#back"/></svg> Continue shopping</a>
+        <a class="btn ghost" style="padding:9px 16px;font-size:13px" asp-controller="Home" asp-action="Index"><svg>
+            <use href="#back" />
+        </svg> Continue shopping</a>
     </div>
 
     @if (!Model.Lines.Any())
     {
         <div class="state">
-            <span class="ic"><svg><use href="#cart"/></svg></span>
+            <span class="ic"><svg>
+                <use href="#cart" />
+            </svg></span>
             <h3>Your cart is empty</h3>
             <p>Browse the catalog and add a few things — they'll show up here.</p>
             <a class="btn" asp-controller="Home" asp-action="Index">Start shopping</a>
@@ -31,7 +35,8 @@
                             <img src="@Url.Content(l.Image)" alt="@l.Product.Name" loading="lazy" />
                         </a>
                         <div class="cline-main">
-                            <a class="cline-name" asp-controller="Products" asp-action="Details" asp-route-id="@l.Product.ProductId">@l.Product.Name</a>
+                            <a class="cline-name" asp-controller="Products" asp-action="Details"
+                               asp-route-id="@l.Product.ProductId">@l.Product.Name</a>
                             <div class="pcode">@l.Product.ProductNumber</div>
                             <div class="cline-unit num">$@l.Product.ListPrice.ToString("N2") each</div>
                         </div>
@@ -43,7 +48,9 @@
                         <div class="cline-total num">$@l.LineTotal.ToString("N2")</div>
                         <form asp-controller="Cart" asp-action="Remove" method="post">
                             <input type="hidden" name="id" value="@l.Product.ProductId" />
-                            <button class="cline-x" type="submit" aria-label="Remove @l.Product.Name"><svg><use href="#close"/></svg></button>
+                            <button class="cline-x" type="submit" aria-label="Remove @l.Product.Name"><svg>
+                                <use href="#close" />
+                            </svg></button>
                         </form>
                     </div>
                 }
@@ -54,7 +61,9 @@
                 <div class="crow"><span>Subtotal</span><span class="num">$@Model.Subtotal.ToString("N2")</span></div>
                 <div class="crow"><span>Shipping</span><span class="muted">Calculated at checkout</span></div>
                 <div class="crow total"><span>Total</span><span class="num">$@Model.Subtotal.ToString("N2")</span></div>
-                <a class="btn cart-checkout" asp-controller="Cart" asp-action="Checkout">Proceed to checkout <svg><use href="#arrow"/></svg></a>
+                <a class="btn cart-checkout" asp-controller="Cart" asp-action="Checkout">Proceed to checkout <svg>
+                    <use href="#arrow" />
+                </svg></a>
             </aside>
         </div>
     }

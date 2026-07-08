@@ -19,17 +19,22 @@
                 <text>Results for “@q”</text><span class="muted"> · @Model.Count match@(Model.Count == 1 ? "" : "es")</span>
             }
         </h2>
-        <a class="btn ghost" style="padding:9px 16px;font-size:13px" asp-controller="Home" asp-action="Index"><svg><use href="#back"/></svg> All categories</a>
+        <a class="btn ghost" style="padding:9px 16px;font-size:13px" asp-controller="Home" asp-action="Index"><svg>
+            <use href="#back" />
+        </svg> All categories</a>
     </div>
 
     @if (!Model.Any())
     {
         <div class="state">
-            <span class="ic"><svg><use href="#search"/></svg></span>
+            <span class="ic"><svg>
+                <use href="#search" />
+            </svg></span>
             @if (string.IsNullOrWhiteSpace(q))
             {
                 <h3>Search the catalog</h3>
-                <p>Type a product name or number in the search box above to find bikes, components, clothing and accessories.</p>
+                <p>Type a product name or number in the search box above to find bikes, components, clothing and accessories.
+                </p>
             }
             else
             {

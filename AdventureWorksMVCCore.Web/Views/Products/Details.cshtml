@@ -20,14 +20,24 @@
 @functions {
     static string ColorHex(string c) => (c ?? "").ToLowerInvariant() switch
     {
-        "black" => "#1b1722", "silver" => "#c4c8cf", "white" => "#eef0f3",
-        "red" => "#c0392b", "blue" => "#3454d1", "yellow" => "#e1b12c",
-        "grey" => "#8a8f99", "gray" => "#8a8f99", "multi" => "#8b5cf6",
+        "black" => "#1b1722",
+        "silver" => "#c4c8cf",
+        "white" => "#eef0f3",
+        "red" => "#c0392b",
+        "blue" => "#3454d1",
+        "yellow" => "#e1b12c",
+        "grey" => "#8a8f99",
+        "gray" => "#8a8f99",
+        "multi" => "#8b5cf6",
         _ => "#8b5cf6"
     };
     static string Line(string l) => (l ?? "").Trim().ToUpperInvariant() switch
     {
-        "M" => "M — Mountain", "R" => "R — Road", "T" => "T — Touring", "S" => "S — Standard", _ => l
+        "M" => "M — Mountain",
+        "R" => "R — Road",
+        "T" => "T — Touring",
+        "S" => "S — Standard",
+        _ => l
     };
 }
 
@@ -40,7 +50,8 @@
         }
         @if (Model.ProductSubcategoryId.HasValue && !string.IsNullOrWhiteSpace(sub))
         {
-            <a asp-controller="Products" asp-action="Subcategory" asp-route-id="@Model.ProductSubcategoryId">@sub</a><text> / </text>
+            <a asp-controller="Products" asp-action="Subcategory" asp-route-id="@Model.ProductSubcategoryId">@sub</a><text>
+            / </text>
         }
         <b>@Model.Name</b>
     </div>
@@ -53,7 +64,8 @@
                 <div class="gthumbs">
                     @for (var i = 0; i < gallery.Count; i++)
                     {
-                        <button type="button" class="gthumb @(i == 0 ? "on" : "")" data-src="@Url.Content(gallery[i])" aria-label="View @(i + 1)">
+                        <button type="button" class="gthumb @(i == 0 ? "on" : "")" data-src="@Url.Content(gallery[i])"
+                                aria-label="View @(i + 1)">
                             <img src="@Url.Content(gallery[i])" alt="" />
                         </button>
                     }
@@ -63,11 +75,16 @@
         <div class="dwrap">
             @if (Model.ProductSubcategoryId.HasValue)
             {
-                <a class="btn ghost" style="padding:8px 14px;font-size:13px" asp-controller="Products" asp-action="Subcategory" asp-route-id="@Model.ProductSubcategoryId"><svg><use href="#back"/></svg> Back</a>
+                <a class="btn ghost" style="padding:8px 14px;font-size:13px" asp-controller="Products"
+                   asp-action="Subcategory" asp-route-id="@Model.ProductSubcategoryId"><svg>
+                    <use href="#back" />
+                </svg> Back</a>
             }
             @if (!string.IsNullOrWhiteSpace(sub))
             {
-                <div style="margin:14px 0 2px"><span class="viewing"><svg><use href="#tag"/></svg> You're viewing · @sub</span></div>
+                <div style="margin:14px 0 2px"><span class="viewing"><svg>
+                    <use href="#tag" />
+                </svg> You're viewing · @sub</span></div>
             }
             <h1>@Model.Name</h1>
             <div class="pcode mono">@(brand != null ? brand + " · " : "")@Model.ProductNumber</div>
@@ -86,36 +103,64 @@
             <span class="instock">In stock — ships in 24h</span>
             <p class="ddesc">@desc</p>
             <div class="dactions">
-                <button class="btn" type="button" data-add-cart="@Model.ProductId">Add to cart <svg><use href="#cart"/></svg></button>
-                <a class="btn ghost" asp-controller="Cart" asp-action="Index"><svg><use href="#cart"/></svg> View cart</a>
+                <button class="btn" type="button" data-add-cart="@Model.ProductId">Add to cart <svg>
+                    <use href="#cart" />
+                </svg></button>
+                <a class="btn ghost" asp-controller="Cart" asp-action="Index"><svg>
+                    <use href="#cart" />
+                </svg> View cart</a>
             </div>
 
             <div class="specs">
                 <span class="eyebrow">Specification</span>
                 <dl style="margin:0">
-                    <div class="spec"><dt>Product No.</dt><dd class="mono">@Model.ProductNumber</dd></div>
+                    <div class="spec">
+                        <dt>Product No.</dt>
+                        <dd class="mono">@Model.ProductNumber</dd>
+                    </div>
                     @if (!string.IsNullOrWhiteSpace(Model.Color))
                     {
-                        <div class="spec"><dt>Color</dt><dd><span class="swatch" style="background:@ColorHex(Model.Color)"></span>@Model.Color</dd></div>
+                        <div class="spec">
+                            <dt>Color</dt>
+                            <dd><span class="swatch" style="background:@ColorHex(Model.Color)"></span>@Model.Color</dd>
+                        </div>
                     }
                     @if (!string.IsNullOrWhiteSpace(Model.Size))
                     {
-                        <div class="spec"><dt>Size</dt><dd>@Model.Size</dd></div>
+                        <div class="spec">
+                            <dt>Size</dt>
+                            <dd>@Model.Size</dd>
+                        </div>
                     }
                     @if (Model.Weight.HasValue)
                     {
-                        <div class="spec"><dt>Weight</dt><dd class="num">@Model.Weight</dd></div>
+                        <div class="spec">
+                            <dt>Weight</dt>
+                            <dd class="num">@Model.Weight</dd>
+                        </div>
                     }
-                    <div class="spec"><dt>List price</dt><dd class="num">$@Model.ListPrice.ToString("N2")</dd></div>
+                    <div class="spec">
+                        <dt>List price</dt>
+                        <dd class="num">$@Model.ListPrice.ToString("N2")</dd>
+                    </div>
                     @if (!string.IsNullOrWhiteSpace(Model.ProductLine))
                     {
-                        <div class="spec"><dt>Product line</dt><dd>@Line(Model.ProductLine)</dd></div>
+                        <div class="spec">
+                            <dt>Product line</dt>
+                            <dd>@Line(Model.ProductLine)</dd>
+                        </div>
                     }
                     @if (!string.IsNullOrWhiteSpace(Model.Class))
                     {
-                        <div class="spec"><dt>Class</dt><dd>@Model.Class</dd></div>
+                        <div class="spec">
+                            <dt>Class</dt>
+                            <dd>@Model.Class</dd>
+                        </div>
                     }
-                    <div class="spec"><dt>Sell start</dt><dd class="num">@Model.SellStartDate.ToString("yyyy-MM-dd")</dd></div>
+                    <div class="spec">
+                        <dt>Sell start</dt>
+                        <dd class="num">@Model.SellStartDate.ToString("yyyy-MM-dd")</dd>
+                    </div>
                 </dl>
             </div>
         </div>

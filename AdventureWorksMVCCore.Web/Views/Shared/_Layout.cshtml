@@ -1,7 +1,10 @@
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
-@{ var cartCount = AdventureWorksMVCCore.Web.Models.CartStore.Count(Context.Session); }
+@{
+    var cartCount = AdventureWorksMVCCore.Web.Models.CartStore.Count(Context.Session);
+}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta name="csrf-token" content="@Antiforgery.GetAndStoreTokens(Context).RequestToken" />
     <meta charset="utf-8" />
@@ -13,26 +16,98 @@
     <link rel="manifest" href="/favicon/manifest.json" />
     <link rel="mask-icon" href="/favicon/safari-pinned-tab.svg" color="#6d28d9" />
     <link href="@Url.Content("~/css/cyclestore.css")" rel="stylesheet" />
-    <script nonce="@(Context.Items["csp-nonce"])">(function(){try{var t=localStorage.getItem('cs-theme');if(t==='dark'||t==='light'){document.documentElement.setAttribute('data-theme',t);}}catch(e){}})();</script>
+    <script
+    nonce="@(Context.Items["csp-nonce"])">(function () { try { var t = localStorage.getItem('cs-theme'); if (t === 'dark' || t === 'light') { document.documentElement.setAttribute('data-theme', t); } } catch (e) { } })();</script>
 </head>
+
 <body>
     <svg width="0" height="0" style="position:absolute" aria-hidden="true">
-        <symbol id="bike" viewBox="0 0 64 40"><g fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="13" cy="28" r="10"/><circle cx="51" cy="28" r="10"/><path d="M13 28 L26 28 L38 12 M26 28 L36 28 L51 28 M38 12 L44 12 M36 28 L30 13 L24 13 M51 28 L44 12"/><path d="M22 13 h7"/></g></symbol>
-        <symbol id="cog" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></g></symbol>
-        <symbol id="shirt" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round" d="M8 3 4 6l2 3 2-1v10h8V8l2 1 2-3-4-3-3 2H11z"/></symbol>
-        <symbol id="helmet" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 14a9 8 0 0 1 18 0"/><path d="M3 14h18l-2 3H5z"/><path d="M9 9h7"/></g></symbol>
-        <symbol id="search" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.2-3.2"/></g></symbol>
-        <symbol id="cart" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h2l2.2 11h9.5l1.8-7H6"/><circle cx="9" cy="19" r="1.4"/><circle cx="17" cy="19" r="1.4"/></g></symbol>
-        <symbol id="arrow" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6"/></symbol>
-        <symbol id="back" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M19 12H5M11 6l-6 6 6 6"/></symbol>
-        <symbol id="menu" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4 7h16M4 12h16M4 17h16"/></symbol>
-        <symbol id="close" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M6 6l12 12M18 6L6 18"/></symbol>
-        <symbol id="zoom" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M20 20l-3.6-3.6M10.5 7.5v6M7.5 10.5h6"/></g></symbol>
-        <symbol id="tag" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12V4h8l10 10-8 8L3 12z"/><circle cx="7.5" cy="7.5" r="1.4"/></g></symbol>
-        <symbol id="sun" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.6M12 19.4V22M2 12h2.6M19.4 12H22M4.6 4.6l1.9 1.9M17.5 17.5l1.9 1.9M19.4 4.6l-1.9 1.9M6.5 17.5l-1.9 1.9"/></g></symbol>
-        <symbol id="moon" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" d="M20 14.5A8 8 0 1 1 9.5 4a6.3 6.3 0 0 0 10.5 10.5z"/></symbol>
-        <symbol id="box" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8M12 13v8"/></g></symbol>
-        <symbol id="check" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" d="M20 6L9 17l-5-5"/></symbol>
+        <symbol id="bike" viewBox="0 0 64 40">
+            <g fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="13" cy="28" r="10" />
+                <circle cx="51" cy="28" r="10" />
+                <path d="M13 28 L26 28 L38 12 M26 28 L36 28 L51 28 M38 12 L44 12 M36 28 L30 13 L24 13 M51 28 L44 12" />
+                <path d="M22 13 h7" />
+            </g>
+        </symbol>
+        <symbol id="cog" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="3.2" />
+                <path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2" />
+            </g>
+        </symbol>
+        <symbol id="shirt" viewBox="0 0 24 24">
+            <path fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"
+                  d="M8 3 4 6l2 3 2-1v10h8V8l2 1 2-3-4-3-3 2H11z" />
+        </symbol>
+        <symbol id="helmet" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 14a9 8 0 0 1 18 0" />
+                <path d="M3 14h18l-2 3H5z" />
+                <path d="M9 9h7" />
+            </g>
+        </symbol>
+        <symbol id="search" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <circle cx="11" cy="11" r="7" />
+                <path d="M20 20l-3.2-3.2" />
+            </g>
+        </symbol>
+        <symbol id="cart" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 4h2l2.2 11h9.5l1.8-7H6" />
+                <circle cx="9" cy="19" r="1.4" />
+                <circle cx="17" cy="19" r="1.4" />
+            </g>
+        </symbol>
+        <symbol id="arrow" viewBox="0 0 24 24">
+            <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                  d="M5 12h14M13 6l6 6-6 6" />
+        </symbol>
+        <symbol id="back" viewBox="0 0 24 24">
+            <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                  d="M19 12H5M11 6l-6 6 6 6" />
+        </symbol>
+        <symbol id="menu" viewBox="0 0 24 24">
+            <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                  d="M4 7h16M4 12h16M4 17h16" />
+        </symbol>
+        <symbol id="close" viewBox="0 0 24 24">
+            <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M6 6l12 12M18 6L6 18" />
+        </symbol>
+        <symbol id="zoom" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <circle cx="10.5" cy="10.5" r="6.5" />
+                <path d="M20 20l-3.6-3.6M10.5 7.5v6M7.5 10.5h6" />
+            </g>
+        </symbol>
+        <symbol id="tag" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 12V4h8l10 10-8 8L3 12z" />
+                <circle cx="7.5" cy="7.5" r="1.4" />
+            </g>
+        </symbol>
+        <symbol id="sun" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+                <circle cx="12" cy="12" r="4.2" />
+                <path
+                d="M12 2v2.6M12 19.4V22M2 12h2.6M19.4 12H22M4.6 4.6l1.9 1.9M17.5 17.5l1.9 1.9M19.4 4.6l-1.9 1.9M6.5 17.5l-1.9 1.9" />
+            </g>
+        </symbol>
+        <symbol id="moon" viewBox="0 0 24 24">
+            <path fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"
+                  d="M20 14.5A8 8 0 1 1 9.5 4a6.3 6.3 0 0 0 10.5 10.5z" />
+        </symbol>
+        <symbol id="box" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 8l-9-5-9 5 9 5 9-5z" />
+                <path d="M3 8v8l9 5 9-5V8M12 13v8" />
+            </g>
+        </symbol>
+        <symbol id="check" viewBox="0 0 24 24">
+            <path fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"
+                  d="M20 6L9 17l-5-5" />
+        </symbol>
     </svg>
 
     @{
@@ -47,30 +122,49 @@
     <header class="bar">
         <div class="wrap">
             <a class="brand" href="/">
-                <span class="mark"><svg><use href="#bike"/></svg></span>
+                <span class="mark"><svg>
+                    <use href="#bike" />
+                </svg></span>
                 <span>Unicorn Bike Rentals<small>Core Cycles Store</small></span>
             </a>
             <div class="nav-panel">
                 <nav class="cats">
                     <a href="/">Home</a>
-                    <a class="@CatActive("Bikes")" asp-controller="Products" asp-action="Category" asp-route-id="Bikes">Bikes</a>
-                    <a class="@CatActive("Components")" asp-controller="Products" asp-action="Category" asp-route-id="Components">Components</a>
-                    <a class="@CatActive("Clothing")" asp-controller="Products" asp-action="Category" asp-route-id="Clothing">Clothing</a>
-                    <a class="@CatActive("Accessories")" asp-controller="Products" asp-action="Category" asp-route-id="Accessories">Accessories</a>
+                    <a class="@CatActive("Bikes")" asp-controller="Products" asp-action="Category"
+                       asp-route-id="Bikes">Bikes</a>
+                    <a class="@CatActive("Components")" asp-controller="Products" asp-action="Category"
+                       asp-route-id="Components">Components</a>
+                    <a class="@CatActive("Clothing")" asp-controller="Products" asp-action="Category"
+                       asp-route-id="Clothing">Clothing</a>
+                    <a class="@CatActive("Accessories")" asp-controller="Products" asp-action="Category"
+                       asp-route-id="Accessories">Accessories</a>
                 </nav>
                 <form class="search" action="@Url.Action("Search", "Products")" method="get" role="search">
-                    <button type="submit" aria-label="Search"><svg style="width:16px;height:16px"><use href="#search"/></svg></button>
-                    <input type="search" name="q" value="@(ViewBag.Query as string)" placeholder="Search the catalog…" aria-label="Search the catalog" />
+                    <button type="submit" aria-label="Search"><svg style="width:16px;height:16px">
+                        <use href="#search" />
+                    </svg></button>
+                    <input type="search" name="q" value="@(ViewBag.Query as string)" placeholder="Search the catalog…"
+                           aria-label="Search the catalog" />
                 </form>
             </div>
             <div class="right">
                 <button class="icobtn theme-toggle" aria-label="Switch theme" title="Switch light / dark">
-                    <svg class="sun" style="width:18px;height:18px"><use href="#sun"/></svg>
-                    <svg class="moon" style="width:18px;height:18px"><use href="#moon"/></svg>
+                    <svg class="sun" style="width:18px;height:18px">
+                        <use href="#sun" />
+                    </svg>
+                    <svg class="moon" style="width:18px;height:18px">
+                        <use href="#moon" />
+                    </svg>
                 </button>
-                <button class="icobtn nav-toggle" aria-label="Menu" aria-expanded="false"><svg style="width:20px;height:20px"><use href="#menu"/></svg></button>
-                <a class="icobtn cart-link" asp-controller="Cart" asp-action="Index" aria-label="Cart" title="View cart">
-                    <svg style="width:18px;height:18px"><use href="#cart"/></svg>
+                <button class="icobtn nav-toggle" aria-label="Menu" aria-expanded="false"><svg
+                    style="width:20px;height:20px">
+                    <use href="#menu" />
+                </svg></button>
+                <a class="icobtn cart-link" asp-controller="Cart" asp-action="Index" aria-label="Cart"
+                   title="View cart">
+                    <svg style="width:18px;height:18px">
+                        <use href="#cart" />
+                    </svg>
                     <span class="dot @(cartCount == 0 ? "hide" : "")" data-cart-count>@cartCount</span>
                 </a>
             </div>
@@ -84,7 +178,9 @@
     <div class="modal" id="qvModal" aria-hidden="true">
         <div class="modal-back" data-close></div>
         <div class="modal-card" role="dialog" aria-modal="true" aria-label="Quick view">
-            <button class="modal-close" data-close aria-label="Close quick view"><svg style="width:18px;height:18px"><use href="#close"/></svg></button>
+            <button class="modal-close" data-close aria-label="Close quick view"><svg style="width:18px;height:18px">
+                <use href="#close" />
+            </svg></button>
             <div id="qvContent"></div>
         </div>
     </div>
@@ -98,4 +194,5 @@
 
     <script src="@Url.Content("~/js/cyclestore.js")" defer></script>
 </body>
+
 </html>

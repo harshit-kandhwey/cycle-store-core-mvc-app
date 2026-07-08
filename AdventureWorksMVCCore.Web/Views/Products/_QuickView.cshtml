@@ -8,9 +8,15 @@
 @functions {
     static string ColorHex(string c) => (c ?? "").ToLowerInvariant() switch
     {
-        "black" => "#1b1722", "silver" => "#c4c8cf", "white" => "#eef0f3",
-        "red" => "#c0392b", "blue" => "#3454d1", "yellow" => "#e1b12c",
-        "grey" => "#8a8f99", "gray" => "#8a8f99", "multi" => "#8b5cf6",
+        "black" => "#1b1722",
+        "silver" => "#c4c8cf",
+        "white" => "#eef0f3",
+        "red" => "#c0392b",
+        "blue" => "#3454d1",
+        "yellow" => "#e1b12c",
+        "grey" => "#8a8f99",
+        "gray" => "#8a8f99",
+        "multi" => "#8b5cf6",
         _ => "#8b5cf6"
     };
 }
@@ -25,7 +31,9 @@
     <div class="qv-body">
         @if (!string.IsNullOrWhiteSpace(sub))
         {
-            <span class="viewing"><svg><use href="#tag"/></svg> @cat · @sub</span>
+            <span class="viewing"><svg>
+                <use href="#tag" />
+            </svg> @cat · @sub</span>
         }
         <div class="pcode mono">@Model.ProductNumber</div>
         <h2>@Model.Name</h2>
@@ -58,15 +66,21 @@
             <div class="gthumbs" style="margin-top:14px">
                 @for (var i = 0; i < gallery.Count; i++)
                 {
-                    <button type="button" class="gthumb @(i == 0 ? "on" : "")" data-src="@Url.Content(gallery[i])" aria-label="View @(i + 1)">
+                    <button type="button" class="gthumb @(i == 0 ? "on" : "")" data-src="@Url.Content(gallery[i])"
+                            aria-label="View @(i + 1)">
                         <img src="@Url.Content(gallery[i])" alt="" />
                     </button>
                 }
             </div>
         }
         <div class="qv-actions">
-            <button class="btn" type="button" data-add-cart="@Model.ProductId">Add to cart <svg><use href="#cart"/></svg></button>
-            <a class="btn ghost" asp-controller="Products" asp-action="Details" asp-route-id="@Model.ProductId">Full details <svg><use href="#arrow"/></svg></a>
+            <button class="btn" type="button" data-add-cart="@Model.ProductId">Add to cart <svg>
+                <use href="#cart" />
+            </svg></button>
+            <a class="btn ghost" asp-controller="Products" asp-action="Details" asp-route-id="@Model.ProductId">Full
+                details <svg>
+                <use href="#arrow" />
+            </svg></a>
         </div>
     </div>
 </div>

@@ -11,7 +11,9 @@
         <a asp-controller="Cart" asp-action="Index">Cart</a> / <b>Checkout</b>
     </div>
 
-    <div class="toolbar"><h2>Checkout</h2></div>
+    <div class="toolbar">
+        <h2>Checkout</h2>
+    </div>
 
     <div class="cart">
         <form class="checkout-form" asp-controller="Cart" asp-action="PlaceOrder" method="post">
@@ -45,17 +47,21 @@
                     <span asp-validation-for="Zip"></span>
                 </div>
             </div>
-            <button class="btn" type="submit" style="margin-top:8px">Place order <svg><use href="#arrow"/></svg></button>
+            <button class="btn" type="submit" style="margin-top:8px">Place order <svg>
+                <use href="#arrow" />
+            </svg></button>
         </form>
 
         <aside class="cart-summary">
             <h3>Order summary</h3>
             @foreach (var l in cart.Lines)
             {
-                <div class="crow"><span>@l.Qty × @l.Product.Name</span><span class="num">$@l.LineTotal.ToString("N2")</span></div>
+                <div class="crow"><span>@l.Qty × @l.Product.Name</span><span class="num">$@l.LineTotal.ToString("N2")</span>
+                </div>
             }
             <div class="crow total"><span>Total</span><span class="num">$@cart.Subtotal.ToString("N2")</span></div>
-            <a class="btn ghost" asp-controller="Cart" asp-action="Index" style="width:100%;justify-content:center">Back to cart</a>
-        </aside>
+            <a class="btn ghost" asp-controller="Cart" asp-action="Index" style="width:100%;justify-content:center">Back
+                to cart</a>
+            </aside>
+        </div>
     </div>
-</div>

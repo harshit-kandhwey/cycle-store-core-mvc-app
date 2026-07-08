@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace AdventureWorksMVCCore.Web.Service.Implementation
 {
-  
+
     public class CategoryService : ICategoryService
     {
         private readonly CYCLE_STOREContext _context;

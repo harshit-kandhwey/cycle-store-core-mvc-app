@@ -1,13 +1,17 @@
 ## copy my AWS account number to a variable name account_id
+
 account_id=$(aws sts get-caller-identity --output text --query Account)
 
 ## create an Amazon S3 bucket to store our environment and service template
+
 aws s3api create-bucket --bucket "proton-cli-templates-${account_id}" --region us-east-1
 
 ## move to the directory where I have cloned template from git-hub
+
 cd aws-proton-sample-templates/loadbalanced-fargate-svc/
 
 ## IAM role to provision infrastructure
+
 aws iam create-role --role-name ProtonServiceRole --assume-role-policy-document file://./policies/proton-service-assume-policy.json
 
 aws iam attach-role-policy --role-name ProtonServiceRole --policy-arn arn:aws:iam::aws:policy/AdministratorAccess
@@ -15,11 +19,11 @@ aws iam attach-role-policy --role-name ProtonServiceRole --policy-arn arn:aws:ia
 ## Associate ProtonServiceRole role
 
 aws proton-preview \
-  --endpoint-url https://proton.us-east-1.amazonaws.com \
-  --region us-east-1 \
-  update-account-roles \
-  --account-role-details "pipelineServiceRoleArn=arn:aws:iam::${account_id}:role/ProtonServiceRole"
-  
+ --endpoint-url https://proton.us-east-1.amazonaws.com \
+ --region us-east-1 \
+ update-account-roles \
+ --account-role-details "pipelineServiceRoleArn=arn:aws:iam::${account_id}:role/ProtonServiceRole"
+
 ## create environment template entry
 
 aws proton-preview \
@@ -40,9 +44,11 @@ create-environment-template-major-version \
 --description "Version 1"
 
 ## compress this and upload it to our dedicated S3 bucket
+
 tar -zcvf env-template.tar.gz environment/ && aws s3 cp env-template.tar.gz s3://proton-cli-templates-${account_id}/env-template.tar.gz && rm env-template.tar.gz
 
 ## to let Proton know that we have a new version of our environment template available
+
 aws proton-preview \
 --endpoint-url https://proton.us-east-1.amazonaws.com \
 --region us-east-1 \
@@ -62,6 +68,7 @@ wait environment-template-registration-complete \
 --minor-version-id "0"
 
 ## Publish
+
 aws proton-preview \
 --endpoint-url https://proton.us-east-1.amazonaws.com \
 --region us-east-1 \
@@ -109,7 +116,6 @@ wait service-template-registration-complete \
 --major-version-id "1" \
 --minor-version-id "0"
 
-
 aws proton-preview \
 --endpoint-url https://proton.us-east-1.amazonaws.com \
 --region us-east-1 \
@@ -118,6 +124,3 @@ update-service-template-minor-version \
 --major-version-id "1" \
 --minor-version-id "0" \
 --status "PUBLISHED"
-
-
-
