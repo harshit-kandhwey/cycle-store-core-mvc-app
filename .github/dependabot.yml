@@ -6,6 +6,15 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 5
+    groups:
+      # Keep all EF Core packages on the same version in a single PR.
+      entity-framework-core:
+        patterns:
+          - "Microsoft.EntityFrameworkCore*"
+    ignore:
+      # App targets .NET 8; EF Core 10+ requires .NET 10. Stay within net8-compatible majors.
+      - dependency-name: "Microsoft.EntityFrameworkCore*"
+        update-types: ["version-update:semver-major"]
 
   # GitHub Actions workflow dependencies
   - package-ecosystem: "github-actions"
