@@ -1,0 +1,43 @@
+name: Bug report
+description: Report a problem with the storefront or the deployment kit
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: A clear description of the bug and what you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Go to '...'
+        2. Click '...'
+        3. See error
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Storefront / UI
+        - Cart / checkout
+        - Catalog / data
+        - Deployment / scripts
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: env
+    attributes:
+      label: Environment
+      description: OS, browser, .NET version, deployment scenario (1 or 2) — as relevant.
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / screenshots
+      description: Relevant log output or screenshots.

@@ -1,0 +1,14 @@
+version: 2
+updates:
+  # NuGet packages for the ASP.NET Core app
+  - package-ecosystem: "nuget"
+    directory: "/AdventureWorksMVCCore.Web"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+
+  # GitHub Actions workflow dependencies
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
