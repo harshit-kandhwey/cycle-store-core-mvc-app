@@ -18,7 +18,7 @@ sqlcmd -S localhost -U sa -P '<sa-password>' -b -i CYCLE_STORE_Schema_data.sql
 
 ## 3. Create the application login (used by the app's connection string)
 ```bash
-sqlcmd -S localhost -U sa -P '<sa-password>' -b -Q "IF SUSER_ID('cycleapp') IS NULL CREATE LOGIN cycleapp WITH PASSWORD='StrongPass123!', DEFAULT_DATABASE=CYCLE_STORE, CHECK_POLICY=OFF;"
+sqlcmd -S localhost -U sa -P '<sa-password>' -b -Q "IF SUSER_ID('cycleapp') IS NULL CREATE LOGIN cycleapp WITH PASSWORD='<cycleapp-password>', DEFAULT_DATABASE=CYCLE_STORE, CHECK_POLICY=ON;"
 sqlcmd -S localhost -U sa -P '<sa-password>' -b -d CYCLE_STORE -Q "IF USER_ID('cycleapp') IS NULL CREATE USER cycleapp FOR LOGIN cycleapp; GRANT SELECT,INSERT,UPDATE,DELETE ON SCHEMA::Production TO cycleapp;"
 ```
 
@@ -32,7 +32,7 @@ sqlcmd -S localhost -U sa -P '<sa-password>' -b -i deploy/db/catalog_pivot.sql
 
 ## 5. Verify
 ```bash
-sqlcmd -S localhost -U cycleapp -P 'StrongPass123!' -d CYCLE_STORE -Q "SELECT COUNT(*) FROM Production.Product WHERE ProductID>=1000;"
+sqlcmd -S localhost -U cycleapp -P '<cycleapp-password>' -d CYCLE_STORE -Q "SELECT COUNT(*) FROM Production.Product WHERE ProductID>=1000;"
 ```
 Expect **114**.
 

@@ -652,11 +652,6 @@ version: 2.7.0
  * @requires reset, fonts
 */
 
-body {
-    /* For breathing room between content and viewport. */
-    margin: 10px;
-}
-
 h1 {
     /* 18px via YUI Fonts CSS foundation. */
     font-size: 138.5%;
@@ -772,6 +767,12 @@ body, body .ui-widget {
     font-family: Segoe UI, Myriad, Myriad Pro, Calibri, Arial, Sans-Serif;
     margin: 0;
     padding: 0;
+}
+
+body {
+    /* For breathing room between content and viewport.
+       Placed after the reset above so the margin is not overridden. */
+    margin: 10px;
 }
 
 a, a:link, a:active, a:visited {
