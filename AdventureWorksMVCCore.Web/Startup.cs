@@ -80,7 +80,12 @@ namespace AdventureWorksMVCCore.Web
                 await next();
             });
 
-            app.UseStaticFiles();
+            // Serve modern image formats: ASP.NET Core's default static-file MIME map has
+            // no entry for .avif, so those files would 404. Register it (most product
+            // photos are .avif) alongside the built-in types.
+            var contentTypes = new Microsoft.AspNetCore.StaticFiles.FileExtensionContentTypeProvider();
+            contentTypes.Mappings[".avif"] = "image/avif";
+            app.UseStaticFiles(new StaticFileOptions { ContentTypeProvider = contentTypes });
 
             app.UseRouting();
 
