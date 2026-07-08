@@ -11,9 +11,8 @@ server {
 
 # --- HTTPS : reverse proxy to the app tier ---
 server {
-    listen ${HTTPS_PORT} ssl;
-    listen [::]:${HTTPS_PORT} ssl;
-    http2 on;
+    listen ${HTTPS_PORT} ssl http2 default_server;
+    listen [::]:${HTTPS_PORT} ssl http2 default_server;
     server_name _;
 
     ssl_certificate     ${TLS_CERT};
