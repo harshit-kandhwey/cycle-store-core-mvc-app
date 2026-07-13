@@ -40,6 +40,7 @@ namespace AdventureWorksMVCCore.Web.Controllers
         }
 
         // GET /Cart
+        [HttpGet]
         public IActionResult Index() => View(BuildCart());
 
         // POST /Cart/Add
@@ -78,6 +79,7 @@ namespace AdventureWorksMVCCore.Web.Controllers
         }
 
         // GET /Cart/Checkout
+        [HttpGet]
         public IActionResult Checkout()
         {
             var cart = BuildCart();
@@ -98,7 +100,7 @@ namespace AdventureWorksMVCCore.Web.Controllers
                 return View("Checkout", model);
             }
 
-            var orderNo = "CS-" + DateTime.Now.ToString("yyMMdd") + "-" +
+            var orderNo = "CS-" + DateTime.UtcNow.ToString("yyMMdd") + "-" +
                           Guid.NewGuid().ToString("N").Substring(0, 5).ToUpperInvariant();
             CartStore.Clear(HttpContext.Session);
 
@@ -110,6 +112,7 @@ namespace AdventureWorksMVCCore.Web.Controllers
         }
 
         // GET /Cart/Confirmation
+        [HttpGet]
         public IActionResult Confirmation()
         {
             if (TempData["OrderNo"] == null) return RedirectToAction("Index", "Home");

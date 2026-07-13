@@ -19,6 +19,7 @@ namespace AdventureWorksMVCCore.Web.Controllers
         }
 
         // GET /Products/Category/{id}   (id = category name, e.g. "Bikes")
+        [HttpGet]
         public IActionResult Category(string id)
         {
             var category = _categoryService.GetCategoriesWithSubCategory()
@@ -62,6 +63,7 @@ namespace AdventureWorksMVCCore.Web.Controllers
         }
 
         // GET /Products/Subcategory/{id}?sort=&color=&color=&min=&max=&inStock=
+        [HttpGet]
         public IActionResult Subcategory(int id, string sort = null, string[] color = null,
             decimal? min = null, decimal? max = null, bool inStock = false, string[] brand = null)
         {
@@ -146,6 +148,7 @@ namespace AdventureWorksMVCCore.Web.Controllers
         }
 
         // GET /Products/Details/{id}
+        [HttpGet]
         public IActionResult Details(int id)
         {
             var product = _productService.GetProduct(id);
@@ -179,6 +182,7 @@ namespace AdventureWorksMVCCore.Web.Controllers
         }
 
         // GET /Products/QuickView/{id}  — HTML fragment for the quick-view modal
+        [HttpGet]
         public IActionResult QuickView(int id)
         {
             var product = _productService.GetProduct(id);
@@ -201,6 +205,7 @@ namespace AdventureWorksMVCCore.Web.Controllers
         }
 
         // GET /Products/Search?q=
+        [HttpGet]
         public IActionResult Search(string q)
         {
             // Normalise and bound the query so an oversized or blank term can't
