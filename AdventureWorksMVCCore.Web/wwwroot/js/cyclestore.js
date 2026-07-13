@@ -3,8 +3,8 @@
   "use strict";
 
   // ---- Mobile hamburger nav ----
-  var bar = document.querySelector("header.bar");
-  var toggle = document.querySelector(".nav-toggle");
+  const bar = document.querySelector("header.bar");
+  const toggle = document.querySelector(".nav-toggle");
   if (bar && toggle) {
     toggle.addEventListener("click", function () {
       var open = bar.classList.toggle("open");
@@ -17,11 +17,11 @@
   }
 
   // ---- Dark / light theme toggle (initial theme set inline in <head> to avoid FOUC) ----
-  var themeBtn = document.querySelector(".theme-toggle");
+  const themeBtn = document.querySelector(".theme-toggle");
   if (themeBtn) {
     themeBtn.addEventListener("click", function () {
-      var root = document.documentElement;
-      var current = root.getAttribute("data-theme");
+      const root = document.documentElement;
+      let current = root.getAttribute("data-theme");
       if (!current) {
         current =
           window.matchMedia &&
@@ -29,7 +29,7 @@
             ? "dark"
             : "light";
       }
-      var next = current === "dark" ? "light" : "dark";
+      const next = current === "dark" ? "light" : "dark";
       root.setAttribute("data-theme", next);
       try {
         localStorage.setItem("cs-theme", next);
@@ -46,11 +46,11 @@
     (root || document).querySelectorAll("[data-gallery]").forEach(function (g) {
       if (g.dataset.wired) return;
       g.dataset.wired = "1";
-      var main = g.querySelector(".gmain img");
-      var thumbs = Array.prototype.slice.call(g.querySelectorAll(".gthumb"));
+      const main = g.querySelector(".gmain img");
+      const thumbs = Array.prototype.slice.call(g.querySelectorAll(".gthumb"));
       thumbs.forEach(function (t) {
         t.addEventListener("click", function () {
-          var src = t.getAttribute("data-src");
+          const src = t.getAttribute("data-src");
           if (main && src) {
             main.src = src;
           }
@@ -61,7 +61,7 @@
         });
       });
       // Zoom on hover (pointer devices only)
-      var box = g.querySelector(".gmain");
+      const box = g.querySelector(".gmain");
       if (
         box &&
         main &&
@@ -86,9 +86,9 @@
   initGallery(document);
 
   // ---- Quick-view modal ----
-  var modal = document.getElementById("qvModal");
-  var qvContent = document.getElementById("qvContent");
-  var lastFocus = null;
+  const modal = document.getElementById("qvModal");
+  const qvContent = document.getElementById("qvContent");
+  let lastFocus = null;
 
   function skeletonQV() {
     return (
@@ -138,10 +138,10 @@
   }
 
   document.addEventListener("click", function (e) {
-    var btn = e.target.closest ? e.target.closest("[data-qview]") : null;
+    const btn = e.target.closest ? e.target.closest("[data-qview]") : null;
     if (!btn || !modal || !qvContent) return;
     e.preventDefault();
-    var id = btn.getAttribute("data-qview");
+    const id = btn.getAttribute("data-qview");
     qvContent.innerHTML = skeletonQV();
     openModal();
     fetch("/Products/QuickView/" + encodeURIComponent(id), {
@@ -152,24 +152,33 @@
         return r.text();
       })
       .then(function (html) {
-        qvContent.innerHTML = html;
+        qvContent.innerHTML = "";
+        qvContent.insertAdjacentHTML("beforeend", html);
         initGallery(qvContent);
       })
       .catch(function () {
-        qvContent.innerHTML =
-          '<div class="state" style="grid-column:1/-1"><h3>Couldn’t load preview</h3>' +
-          "<p>Please try opening the full product page instead.</p></div>";
+        qvContent.innerHTML = "";
+        const errorDiv = document.createElement("div");
+        errorDiv.className = "state";
+        errorDiv.style.gridColumn = "1 / -1";
+        const h3 = document.createElement("h3");
+        h3.textContent = "Couldn’t load preview";
+        const p = document.createElement("p");
+        p.textContent = "Please try opening the full product page instead.";
+        errorDiv.appendChild(h3);
+        errorDiv.appendChild(p);
+        qvContent.appendChild(errorDiv);
       });
   });
 
   // ---- Infinite scroll with skeleton flash ----
-  var grid = document.querySelector(".prods[data-infinite]");
-  var sentinel = document.getElementById("scroll-sentinel");
+  const grid = document.querySelector(".prods[data-infinite]");
+  const sentinel = document.getElementById("scroll-sentinel");
   if (grid) {
-    var cards = Array.prototype.slice.call(grid.querySelectorAll(".pcard"));
-    var BATCH = 9;
-    var shown = Math.min(BATCH, cards.length);
-    var busy = false;
+    const cards = Array.prototype.slice.call(grid.querySelectorAll(".pcard"));
+    const BATCH = 9;
+    let shown = Math.min(BATCH, cards.length);
+    let busy = false;
     cards.forEach(function (c, i) {
       if (i >= shown) {
         c.style.display = "none";
@@ -183,13 +192,13 @@
     }
 
     function skelRow(n) {
-      var box = document.createElement("div");
+      const box = document.createElement("div");
       box.className = "skgrid sk-temp";
-      var one =
+      const one =
         '<div class="skcard"><div class="skv skel"></div><div class="skb">' +
         '<div class="skel l w40"></div><div class="skel l w80"></div><div class="skel l w60"></div></div></div>';
-      var html = "";
-      for (var i = 0; i < n; i++) {
+      let html = "";
+      for (let i = 0; i < n; i++) {
         html += one;
       }
       box.innerHTML = html;
@@ -198,20 +207,20 @@
 
     function revealMore() {
       if (busy) return;
-      var remaining = cards.length - shown;
+      const remaining = cards.length - shown;
       if (remaining <= 0) {
         hideSentinel();
         return;
       }
       busy = true;
-      var n = Math.min(BATCH, remaining);
-      var sk = skelRow(n);
+      const n = Math.min(BATCH, remaining);
+      const sk = skelRow(n);
       if (grid.parentNode) {
         grid.parentNode.insertBefore(sk, sentinel || null);
       }
       setTimeout(function () {
-        var end = shown + n;
-        for (var i = shown; i < end; i++) {
+        const end = shown + n;
+        for (let i = shown; i < end; i++) {
           cards[i].style.display = "";
         }
         shown = end;
@@ -228,7 +237,7 @@
     if (shown >= cards.length) {
       hideSentinel();
     } else if (sentinel && "IntersectionObserver" in window) {
-      var io = new IntersectionObserver(
+      const io = new IntersectionObserver(
         function (entries) {
           entries.forEach(function (e) {
             if (e.isIntersecting) {
@@ -251,19 +260,19 @@
 // Add to cart — delegated click, posts to /Cart/Add with the CSRF token and
 // updates the header badge without a full page reload.
 (function () {
-  var meta = document.querySelector('meta[name="csrf-token"]');
-  var csrf = meta ? meta.getAttribute("content") : "";
+  const meta = document.querySelector('meta[name="csrf-token"]');
+  const csrf = meta ? meta.getAttribute("content") : "";
 
   document.addEventListener("click", function (e) {
-    var btn = e.target.closest ? e.target.closest("[data-add-cart]") : null;
+    const btn = e.target.closest ? e.target.closest("[data-add-cart]") : null;
     if (!btn) return;
     e.preventDefault();
 
-    var id = btn.getAttribute("data-add-cart");
-    var orig = btn.innerHTML;
+    const id = btn.getAttribute("data-add-cart");
+    const orig = btn.innerHTML;
     btn.disabled = true;
 
-    var body = "id=" + encodeURIComponent(id) + "&qty=1";
+    const body = "id=" + encodeURIComponent(id) + "&qty=1";
     fetch("/Cart/Add", {
       method: "POST",
       headers: {
