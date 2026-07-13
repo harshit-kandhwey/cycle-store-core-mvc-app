@@ -1,7 +1,4 @@
-@model AdventureWorksMVCCore.Web.Models.SubcategoryProductsViewModel
-@{
-    ViewBag.Title = Model.Subcategory.Name;
-    Layout = "~/Views/Shared/_Layout.cshtml";
+@inject AdventureWorksMVCCore.Web.Models.CatalogImages CatalogImages
     var catName = Model.Subcategory.ProductCategory?.Name;
     var subId = Model.Subcategory.ProductSubcategoryId;
     var curSort = ViewBag.Sort as string;

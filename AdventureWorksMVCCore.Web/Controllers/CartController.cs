@@ -7,16 +7,12 @@ using AdventureWorksMVCCore.Web.Service.Interface;
 
 namespace AdventureWorksMVCCore.Web.Controllers
 {
-    public class CartController : Controller
-    {
-        private readonly IProductService _productService;
-
-        public CartController(IProductService productService)
-        {
-            _productService = productService;
-        }
-
-        private CartViewModel BuildCart()
+        private readonly CatalogImages _catalogImages;
+        private readonly CartStore _cartStore;
+        public CartController(IProductService productService, CatalogImages catalogImages, CartStore cartStore)
+            _catalogImages = catalogImages;
+            _cartStore = cartStore;
+            var cart = _cartStore.Get(HttpContext.Session);
         {
             var cart = CartStore.Get(HttpContext.Session);
             var map = _productService.SubcategoryMap();
@@ -25,15 +21,8 @@ namespace AdventureWorksMVCCore.Web.Controllers
             {
                 var p = _productService.GetProduct(kv.Key);
                 if (p == null || !CatalogCuration.IsProductIncluded(p.ProductNumber)) continue;
-
-                string image;
-                if (p.ProductSubcategoryId.HasValue && map.TryGetValue(p.ProductSubcategoryId.Value, out var sub))
-                    image = CatalogImages.For(sub.ProductCategory?.Name, sub.Name, p.ProductNumber, kv.Key);
-                else
-                    image = CatalogImages.For(null, null, p.ProductNumber, kv.Key);
-
-                vm.Lines.Add(new CartLine { Product = p, Qty = kv.Value, Image = image });
-            }
+                    image = _catalogImages.For(sub.ProductCategory?.Name, sub.Name, p.ProductNumber, kv.Key);
+                    image = _catalogImages.For(null, null, p.ProductNumber, kv.Key);
             vm.Count = vm.Lines.Sum(l => l.Qty);
             vm.Subtotal = vm.Lines.Sum(l => l.LineTotal);
             return vm;
@@ -50,35 +39,16 @@ namespace AdventureWorksMVCCore.Web.Controllers
             var p = _productService.GetProduct(id);
             if (p == null || !CatalogCuration.IsProductIncluded(p.ProductNumber))
             {
-                return NotFound();
-            }
-            CartStore.Add(HttpContext.Session, id, qty);
-
-            var count = CartStore.Count(HttpContext.Session);
-            if (Request.Headers.TryGetValue("X-Requested-With", out var requestedWith) && requestedWith == "fetch")
-            {
-                return Json(new { count, name = p.Name });
-            }
+            _cartStore.Add(HttpContext.Session, id, qty);
+            var count = _cartStore.Count(HttpContext.Session);
             return RedirectToAction(nameof(Index));
         }
 
         // POST /Cart/Update
         [HttpPost, ValidateAntiForgeryToken]
-        public IActionResult Update(int id, int qty)
-        {
-            CartStore.SetQty(HttpContext.Session, id, qty);
-            return RedirectToAction(nameof(Index));
-        }
-
-        // POST /Cart/Remove
+            _cartStore.SetQty(HttpContext.Session, id, qty);
         [HttpPost, ValidateAntiForgeryToken]
-        public IActionResult Remove(int id)
-        {
-            CartStore.Remove(HttpContext.Session, id);
-            return RedirectToAction(nameof(Index));
-        }
-
-        // GET /Cart/Checkout
+            _cartStore.Remove(HttpContext.Session, id);
         [HttpGet]
         public IActionResult Checkout()
         {
@@ -99,13 +69,7 @@ namespace AdventureWorksMVCCore.Web.Controllers
                 ViewBag.Cart = cart;
                 return View("Checkout", model);
             }
-
-            var orderNo = "CS-" + DateTime.UtcNow.ToString("yyMMdd") + "-" +
-                          Guid.NewGuid().ToString("N").Substring(0, 5).ToUpperInvariant();
-            CartStore.Clear(HttpContext.Session);
-
-            TempData["OrderNo"] = orderNo;
-            TempData["OrderEmail"] = model.Email;
+            _cartStore.Clear(HttpContext.Session);
             TempData["OrderTotal"] = cart.Subtotal.ToString("N2");
             TempData["OrderItems"] = cart.Count;
             return RedirectToAction(nameof(Confirmation));

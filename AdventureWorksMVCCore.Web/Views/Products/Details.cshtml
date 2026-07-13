@@ -1,7 +1,4 @@
-@model AdventureWorksMVCCore.Web.Models.Product
-@{
-    ViewBag.Title = Model.Name;
-    Layout = "~/Views/Shared/_Layout.cshtml";
+@inject AdventureWorksMVCCore.Web.Models.CatalogImages CatalogImages
     var cat = ViewBag.Category as string;
     var sub = ViewBag.Subcategory as string;
     var gallery = ViewBag.Gallery as List<string> ?? new List<string>();

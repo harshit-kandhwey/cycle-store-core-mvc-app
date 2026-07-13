@@ -2,20 +2,32 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http;
+using AdventureWorksMVCCore.Web.Services;
 
 namespace AdventureWorksMVCCore.Web.Models
 {
     /// <summary>
     /// A simple guest cart persisted in the session as productId -> quantity.
     /// No database or account is required (the CYCLE_STORE schema has no order tables).
+    /// Session key is retrieved from AWS Secrets Manager for secure configuration management.
     /// </summary>
-    public static class CartStore
+    public class CartStore
     {
-        private const string Key = "cart";
+        private readonly ISecretsManager _secretsManager;
+        private readonly string _sessionKey;
 
-        public static Dictionary<int, int> Get(ISession session)
+        public CartStore(ISecretsManager secretsManager)
         {
-            var json = session.GetString(Key);
+            _secretsManager = secretsManager;
+            // Retrieve session key from AWS Secrets Manager
+            // The secret should be stored as a simple string value in AWS Secrets Manager
+            // with the name "AdventureWorks/CartSessionKey"
+            _sessionKey = _secretsManager.GetSecret("AdventureWorks/CartSessionKey");
+        }
+
+        public Dictionary<int, int> Get(ISession session)
+        {
+            var json = session.GetString(_sessionKey);
             if (string.IsNullOrEmpty(json)) return new Dictionary<int, int>();
             try
             {
@@ -28,13 +40,13 @@ namespace AdventureWorksMVCCore.Web.Models
             }
         }
 
-        public static void Save(ISession session, Dictionary<int, int> cart)
-            => session.SetString(Key, JsonSerializer.Serialize(cart));
+        public void Save(ISession session, Dictionary<int, int> cart)
+            => session.SetString(_sessionKey, JsonSerializer.Serialize(cart));
 
-        public static int Count(ISession session)
+        public int Count(ISession session)
             => Get(session).Values.Sum();
 
-        public static void Add(ISession session, int productId, int qty)
+        public void Add(ISession session, int productId, int qty)
         {
             if (qty < 1) qty = 1;
             var cart = Get(session);
@@ -43,7 +55,7 @@ namespace AdventureWorksMVCCore.Web.Models
             Save(session, cart);
         }
 
-        public static void SetQty(ISession session, int productId, int qty)
+        public void SetQty(ISession session, int productId, int qty)
         {
             var cart = Get(session);
             if (qty <= 0) cart.Remove(productId);
@@ -51,12 +63,12 @@ namespace AdventureWorksMVCCore.Web.Models
             Save(session, cart);
         }
 
-        public static void Remove(ISession session, int productId)
+        public void Remove(ISession session, int productId)
         {
             var cart = Get(session);
             if (cart.Remove(productId)) Save(session, cart);
         }
 
-        public static void Clear(ISession session) => session.Remove(Key);
+        public void Clear(ISession session) => session.Remove(_sessionKey);
     }
 }

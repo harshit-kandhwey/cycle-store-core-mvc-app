@@ -8,17 +8,9 @@ using AdventureWorksMVCCore.Web.Service.Interface;
 namespace AdventureWorksMVCCore.Web.Controllers
 {
     public class ProductsController : Controller
-    {
-        private readonly IProductService _productService;
-        private readonly ICategoryService _categoryService;
-
-        public ProductsController(IProductService productService, ICategoryService categoryService)
-        {
-            _productService = productService;
-            _categoryService = categoryService;
-        }
-
-        // GET /Products/Category/{id}   (id = category name, e.g. "Bikes")
+        private readonly CatalogImages _catalogImages;
+        public ProductsController(IProductService productService, ICategoryService categoryService, CatalogImages catalogImages)
+            _catalogImages = catalogImages;
         [HttpGet]
         public IActionResult Category(string id)
         {
@@ -42,13 +34,7 @@ namespace AdventureWorksMVCCore.Web.Controllers
             foreach (var s in subs)
             {
                 var prods = _productService.GetProductsBySubcategory(s.ProductSubcategoryId)
-                    .Where(p => CatalogCuration.IsProductIncluded(p.ProductNumber));
-                foreach (var p in prods)
-                {
-                    cards.Add(new ProductCard
-                    {
-                        Product = p,
-                        Image = CatalogImages.For(category.Name, s.Name, p.ProductNumber, i)
+                        Image = _catalogImages.For(category.Name, s.Name, p.ProductNumber, i)
                     });
                     i++;
                 }
@@ -166,21 +152,9 @@ namespace AdventureWorksMVCCore.Web.Controllers
                 ViewBag.Category = cat;
                 ViewBag.Subcategory = sub;
 
-                var related = _productService.GetProductsBySubcategory(product.ProductSubcategoryId.Value)
-                    .Where(p => CatalogCuration.IsProductIncluded(p.ProductNumber) && p.ProductId != product.ProductId)
-                    .Take(4)
-                    .Select((p, i) => new ProductCard
-                    {
-                        Product = p,
-                        Image = CatalogImages.For(cat, sub, p.ProductNumber, i)
+                        Image = _catalogImages.For(cat, sub, p.ProductNumber, i)
                     }).ToList();
-                ViewBag.Related = related;
-            }
-
-            ViewBag.Gallery = CatalogImages.Gallery(cat, sub, product.ProductNumber, product.ProductId);
-            return View(product);
-        }
-
+            ViewBag.Gallery = _catalogImages.Gallery(cat, sub, product.ProductNumber, product.ProductId);
         // GET /Products/QuickView/{id}  — HTML fragment for the quick-view modal
         [HttpGet]
         public IActionResult QuickView(int id)
@@ -194,13 +168,7 @@ namespace AdventureWorksMVCCore.Web.Controllers
             string cat = null, sub = null;
             if (product.ProductSubcategoryId.HasValue)
             {
-                var s = _productService.GetSubcategory(product.ProductSubcategoryId.Value);
-                cat = s?.ProductCategory?.Name;
-                sub = s?.Name;
-            }
-            ViewBag.Category = cat;
-            ViewBag.Subcategory = sub;
-            ViewBag.Gallery = CatalogImages.Gallery(cat, sub, product.ProductNumber, product.ProductId);
+            ViewBag.Gallery = _catalogImages.Gallery(cat, sub, product.ProductNumber, product.ProductId);
             return PartialView("_QuickView", product);
         }
 
@@ -221,17 +189,8 @@ namespace AdventureWorksMVCCore.Web.Controllers
                 : _productService.Search(q)
                     .Where(p => CatalogCuration.IsProductIncluded(p.ProductNumber))
                     .ToList();
-            var map = _productService.SubcategoryMap();
-
-            var cards = results.Select((p, i) =>
-            {
-                string image;
-                if (p.ProductSubcategoryId.HasValue && map.TryGetValue(p.ProductSubcategoryId.Value, out var sub))
-                {
-                    image = CatalogImages.For(sub.ProductCategory?.Name, sub.Name, p.ProductNumber, i);
-                }
-                else
-                {
+                    image = _catalogImages.For(sub.ProductCategory?.Name, sub.Name, p.ProductNumber, i);
+                    image = _catalogImages.For(null, null, p.ProductNumber, i);
                     image = CatalogImages.For(null, null, p.ProductNumber, i);
                 }
                 return new ProductCard { Product = p, Image = image };

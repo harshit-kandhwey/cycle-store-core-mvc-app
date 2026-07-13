@@ -1,9 +1,11 @@
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using AdventureWorksMVCCore.Web.Services;
+using Microsoft.AspNetCore.Http;
 
 namespace AdventureWorksMVCCore.Web.Models
 {
@@ -11,9 +13,13 @@ namespace AdventureWorksMVCCore.Web.Models
     /// Maps a product to a bundled image under wwwroot/Images/catalog.
     /// Prefers a subcategory-specific photo (…/catalog/sub/{slug}.jpg); falls back to a
     /// category photo when a subcategory image is not available.
+    /// Uses Redis cache for distributed state management across multiple instances.
     /// </summary>
-    public static class CatalogImages
+    public class CatalogImages
     {
+        private readonly IRedisCache _redisCache;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
         // Subcategories that have a dedicated photo under wwwroot/Images/catalog/sub/.
         private static readonly HashSet<string> SubSlugs = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
@@ -44,6 +50,15 @@ namespace AdventureWorksMVCCore.Web.Models
                 ["Accessories"] = "sub/helmets",
             };
 
+        // Accepted on-disk formats for a product photo, in preference order.
+        private static readonly string[] ImageExts = { ".jpg", ".jpeg", ".png", ".webp", ".avif" };
+
+        public CatalogImages(IRedisCache redisCache, IHttpContextAccessor httpContextAccessor)
+        {
+            _redisCache = redisCache ?? throw new ArgumentNullException(nameof(redisCache));
+            _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
+        }
+
         public static string Slug(string s)
         {
             s = (s ?? "").ToLowerInvariant().Replace("&", "and");
@@ -55,7 +70,7 @@ namespace AdventureWorksMVCCore.Web.Models
         /// (…/catalog/product/{product-number}.jpg) when one is available,
         /// then a subcategory photo, then a category photo.
         /// </summary>
-        public static string For(string category, string subcategory, string productNumber, int index)
+        public string For(string category, string subcategory, string productNumber, int index)
         {
             if (CatalogCuration.IsProductIncluded(productNumber))
             {
@@ -65,31 +80,31 @@ namespace AdventureWorksMVCCore.Web.Models
             return For(category, subcategory, index);
         }
 
-        // Accepted on-disk formats for a product photo, in preference order.
-        private static readonly string[] ImageExts = { ".jpg", ".jpeg", ".png", ".webp", ".avif" };
-
-        // Cache disk lookups so we don't stat the file on every render. The cached value
-        // is the resolved web path ("~/Images/catalog/product/{slug}{ext}"), or null when
-        // no file exists in any accepted format.
-        private static readonly ConcurrentDictionary<string, string> _productImageCache =
-            new ConcurrentDictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-
-        private static string ProductImagePath(string slug)
+        /// <summary>
+        /// Retrieves product image path from Redis cache or computes it if not cached.
+        /// Uses Amazon ElastiCache for Redis to provide distributed state across instances.
+        /// </summary>
+        private string ProductImagePath(string slug)
         {
             if (string.IsNullOrEmpty(slug)) return null;
-            return _productImageCache.GetOrAdd(slug, s =>
+
+            // Use Redis cache with 24-hour expiration
+            var cacheKey = $"product-image:{slug}";
+            var cachedPath = _redisCache.GetOrAddAsync(cacheKey, s =>
             {
                 var dir = Path.Combine(AppContext.BaseDirectory, "wwwroot", "Images", "catalog", "product");
                 foreach (var ext in ImageExts)
                 {
-                    if (File.Exists(Path.Combine(dir, s + ext)))
-                        return "~/Images/catalog/product/" + s + ext;
+                    if (File.Exists(Path.Combine(dir, slug + ext)))
+                        return "~/Images/catalog/product/" + slug + ext;
                 }
                 return null;
-            });
+            }, TimeSpan.FromHours(24)).GetAwaiter().GetResult();
+
+            return cachedPath;
         }
 
-        private static bool ProductImageExists(string slug) => ProductImagePath(slug) != null;
+        private bool ProductImageExists(string slug) => ProductImagePath(slug) != null;
 
         /// <summary>Image path for a product, preferring a subcategory-specific photo.</summary>
         public static string For(string category, string subcategory, int index)
@@ -109,7 +124,7 @@ namespace AdventureWorksMVCCore.Web.Models
         /// numbered angles (…/product/{slug}-2.jpg …-3.jpg) that exist on disk, then the
         /// subcategory photo, then category photos — deduped and capped. Always non-empty.
         /// </summary>
-        public static List<string> Gallery(string category, string subcategory, string productNumber, int index)
+        public List<string> Gallery(string category, string subcategory, string productNumber, int index)
         {
             var list = new List<string>();
             void Add(string p) { if (!string.IsNullOrEmpty(p) && !list.Contains(p)) list.Add(p); }

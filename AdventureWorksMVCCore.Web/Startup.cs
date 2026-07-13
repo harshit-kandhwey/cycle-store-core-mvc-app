@@ -1,9 +1,6 @@
-using System;
-using AdventureWorksMVCCore.Web.Models;
-using AdventureWorksMVCCore.Web.Service.Implementation;
-using AdventureWorksMVCCore.Web.Service.Interface;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
+using AdventureWorksMVCCore.Web.Services;
+using Amazon.SecretsManager;
+using StackExchange.Redis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,12 +20,29 @@ namespace AdventureWorksMVCCore.Web
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
-        {
-            services.AddControllersWithViews();
+            // AWS Secrets Manager for externalized secrets
+            services.AddSingleton<IAmazonSecretsManager>(sp =>
+            {
+                // AWS SDK will automatically use IAM role credentials in AWS environment
+                return new AmazonSecretsManagerClient();
+            });
+            services.AddSingleton<ISecretsManager, AwsSecretsManager>();
 
-            // Connection string is supplied entirely by configuration, i.e. the
-            // ConnectionStrings__DefaultConnection environment variable set in the
-            // systemd unit. No AWS Secrets Manager, no hardcoded host. On the AWS
+            // Amazon ElastiCache for Redis - replaces static collections with distributed cache
+            var redisConnectionString = Configuration.GetValue<string>("Redis:ConnectionString") 
+                ?? Environment.GetEnvironmentVariable("REDIS_CONNECTION_STRING")
+                ?? "localhost:6379"; // fallback for local development
+            
+            services.AddSingleton<IConnectionMultiplexer>(sp =>
+            {
+                var configuration = ConfigurationOptions.Parse(redisConnectionString);
+                configuration.AbortOnConnectFail = false;
+                return ConnectionMultiplexer.Connect(configuration);
+            });
+            services.AddSingleton<IRedisCache, RedisCache>();
+            services.AddScoped<CatalogImages>();
+            services.AddScoped<CartStore>();
+
             // cutover only that environment variable changes.
             string connectionString = Configuration.GetConnectionString("DefaultConnection");
 

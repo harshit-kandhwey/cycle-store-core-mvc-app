@@ -1,7 +1,4 @@
-@model AdventureWorksMVCCore.Web.Views.Components.ContentLayoutModel
-@functions {
-    static string CategoryIcon(string name) => (name ?? "").ToLowerInvariant() switch
-    {
+@inject AdventureWorksMVCCore.Web.Models.CatalogImages CatalogImages
         var n when n.Contains("bike") => "bike",
         var n when n.Contains("component") => "cog",
         var n when n.Contains("cloth") => "shirt",
