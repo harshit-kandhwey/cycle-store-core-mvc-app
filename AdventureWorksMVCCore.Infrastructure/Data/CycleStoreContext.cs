@@ -1,16 +1,12 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
+using AdventureWorksMVCCore.Domain.Entities;
 
-namespace AdventureWorksMVCCore.Web.Models
+namespace AdventureWorksMVCCore.Infrastructure.Data
 {
-    public partial class CYCLE_STOREContext : DbContext
+    public partial class CycleStoreContext : DbContext
     {
-        public CYCLE_STOREContext()
-        {
-        }
-
-        public CYCLE_STOREContext(DbContextOptions<CYCLE_STOREContext> options)
+        public CycleStoreContext(DbContextOptions<CycleStoreContext> options)
             : base(options)
         {
         }
@@ -18,12 +14,6 @@ namespace AdventureWorksMVCCore.Web.Models
         public virtual DbSet<Product> Product { get; set; }
         public virtual DbSet<ProductCategory> ProductCategory { get; set; }
         public virtual DbSet<ProductSubcategory> ProductSubcategory { get; set; }
-
-        // Connection is configured exclusively through dependency injection in
-        // Startup.ConfigureServices (from the ConnectionStrings__DefaultConnection
-        // configuration value). The scaffolded OnConfiguring fallback that embedded
-        // a hardcoded server/username/password has been removed so no credentials
-        // live in source control.
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

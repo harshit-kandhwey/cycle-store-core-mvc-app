@@ -1,8 +1,12 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using AdventureWorksMVCCore.Domain.Entities;
 
-namespace AdventureWorksMVCCore.Web.Models
+namespace AdventureWorksMVCCore.Web.ViewModels
 {
+    /// <summary>
+    /// Cart line item
+    /// </summary>
     public class CartLine
     {
         public Product Product { get; set; }
@@ -11,6 +15,9 @@ namespace AdventureWorksMVCCore.Web.Models
         public decimal LineTotal => Product == null ? 0 : Product.ListPrice * Qty;
     }
 
+    /// <summary>
+    /// Shopping cart view model
+    /// </summary>
     public class CartViewModel
     {
         public List<CartLine> Lines { get; set; } = new List<CartLine>();
@@ -18,6 +25,9 @@ namespace AdventureWorksMVCCore.Web.Models
         public decimal Subtotal { get; set; }
     }
 
+    /// <summary>
+    /// Checkout form model
+    /// </summary>
     public class CheckoutModel
     {
         [Required, StringLength(80)]

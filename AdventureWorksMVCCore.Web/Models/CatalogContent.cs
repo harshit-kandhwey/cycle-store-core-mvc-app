@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
-
-namespace AdventureWorksMVCCore.Web.Models
-{
+using AdventureWorksMVCCore.Domain.Entities;
     /// <summary>
     /// App-side, database-free enrichment for the storefront: brand detection, generated
     /// product descriptions, deterministic ratings/reviews, and a "was" (compare-at) price

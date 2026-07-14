@@ -2,11 +2,15 @@ using System;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
+using AdventureWorksMVCCore.Application.Interfaces;
 using AdventureWorksMVCCore.Web.Models;
-using AdventureWorksMVCCore.Web.Service.Interface;
+using AdventureWorksMVCCore.Web.ViewModels;
 
 namespace AdventureWorksMVCCore.Web.Controllers
 {
+    /// <summary>
+    /// Shopping cart controller
+    /// </summary>
     public class CartController : Controller
     {
         private readonly IProductService _productService;

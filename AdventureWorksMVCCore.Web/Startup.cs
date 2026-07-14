@@ -1,13 +1,14 @@
 using System;
-using AdventureWorksMVCCore.Web.Models;
-using AdventureWorksMVCCore.Web.Service.Implementation;
-using AdventureWorksMVCCore.Web.Service.Interface;
+using AdventureWorksMVCCore.Application.Interfaces;
+using AdventureWorksMVCCore.Application.Services;
+using AdventureWorksMVCCore.Domain.Interfaces;
+using AdventureWorksMVCCore.Infrastructure.Data;
+using AdventureWorksMVCCore.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 
 namespace AdventureWorksMVCCore.Web
@@ -32,11 +33,17 @@ namespace AdventureWorksMVCCore.Web
             // cutover only that environment variable changes.
             string connectionString = Configuration.GetConnectionString("DefaultConnection");
 
-            services.AddDbContext<CYCLE_STOREContext>(options =>
+            // Register DbContext with Clean Architecture pattern
+            services.AddDbContext<CycleStoreContext>(options =>
                 options.UseSqlServer(connectionString));
 
-            services.TryAddScoped<ICategoryService, CategoryService>();
-            services.TryAddScoped<IProductService, ProductService>();
+            // Register repositories (Infrastructure layer)
+            services.AddScoped<IProductRepository, ProductRepository>();
+            services.AddScoped<ICategoryRepository, CategoryRepository>();
+
+            // Register application services (Application layer)
+            services.AddScoped<IProductService, ProductService>();
+            services.AddScoped<ICategoryService, CategoryService>();
 
             // Guest cart lives in the session (no DB order tables in CYCLE_STORE).
             services.AddHttpContextAccessor();

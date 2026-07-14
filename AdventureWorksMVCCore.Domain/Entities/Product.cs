@@ -1,9 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+using System;
 
-namespace AdventureWorksMVCCore.Web.Models
+namespace AdventureWorksMVCCore.Domain.Entities
 {
-    public partial class Product
+    /// <summary>
+    /// Domain entity representing a product in the catalog
+    /// </summary>
+    public class Product
     {
         public int ProductId { get; set; }
         public string Name { get; set; }
@@ -30,5 +32,8 @@ namespace AdventureWorksMVCCore.Web.Models
         public DateTime? DiscontinuedDate { get; set; }
         public Guid Rowguid { get; set; }
         public DateTime ModifiedDate { get; set; }
+
+        // Navigation property
+        public virtual ProductSubcategory ProductSubcategory { get; set; }
     }
 }

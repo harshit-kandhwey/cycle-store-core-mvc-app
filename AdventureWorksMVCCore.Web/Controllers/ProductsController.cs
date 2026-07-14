@@ -2,11 +2,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
+using AdventureWorksMVCCore.Application.Interfaces;
+using AdventureWorksMVCCore.Domain.Entities;
 using AdventureWorksMVCCore.Web.Models;
-using AdventureWorksMVCCore.Web.Service.Interface;
+using AdventureWorksMVCCore.Web.ViewModels;
 
 namespace AdventureWorksMVCCore.Web.Controllers
 {
+    /// <summary>
+    /// Products controller for catalog browsing and search
+    /// </summary>
     public class ProductsController : Controller
     {
         private readonly IProductService _productService;

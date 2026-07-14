@@ -1,7 +1,8 @@
-using System;
-
-namespace AdventureWorksMVCCore.Web.Models
+namespace AdventureWorksMVCCore.Web.ViewModels
 {
+    /// <summary>
+    /// View model for error page
+    /// </summary>
     public class ErrorViewModel
     {
         public string RequestId { get; set; }

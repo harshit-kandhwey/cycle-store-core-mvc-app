@@ -1,9 +1,11 @@
 using System.Collections.Generic;
+using AdventureWorksMVCCore.Domain.Entities;
 
-namespace AdventureWorksMVCCore.Web.Models
+namespace AdventureWorksMVCCore.Web.ViewModels
 {
-    /// <summary>Data for a category landing page: the category, its (curated)
-    /// subcategories, and the products shown across them.</summary>
+    /// <summary>
+    /// View model for category page
+    /// </summary>
     public class CategoryPageViewModel
     {
         public ProductCategory Category { get; set; }

@@ -1,5 +1,4 @@
-﻿
-using AdventureWorksMVCCore.Web.Models;
+using AdventureWorksMVCCore.Domain.Entities;
 using System.Collections.Generic;
 
 namespace AdventureWorksMVCCore.Web.Views.Components

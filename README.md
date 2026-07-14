@@ -1,88 +1,179 @@
-# Unicorn Bike Rentals — Cycle Store
+# AdventureWorks MVC Core - Clean Architecture
 
-A modern ASP.NET Core (.NET 8) storefront for a bicycle shop: a curated catalog
-of ~114 real cycling products with a full browsing and shopping experience,
-served live from SQL Server across a classic web / app / database tier split.
+This project demonstrates a modern ASP.NET Core MVC application built with Clean Architecture principles on .NET 8.
 
-> **Fork notice.** This project began as a fork of
-> [`aws-samples/cycle-store-core-mvc-app`](https://github.com/aws-samples/cycle-store-core-mvc-app).
-> It has since **diverged substantially** — new UI, a rebuilt catalog, e-commerce
-> features, a security pass, and a self-contained deployment kit. The upstream
-> repository is now **archived by its owner**, so these changes are **not**
-> submitted back as a pull request; this repository is maintained independently.
-> Original code remains under the upstream licence (see [`LICENSE`](LICENSE)).
+## Architecture Overview
 
-## Highlights
-
-- **Curated catalog** — 114 real cycling products across 36 subcategories
-  (bikes, components, clothing, accessories), each with a hand-matched photo.
-- **Rich product browsing** — category & subcategory pages, breadcrumb, quick-view
-  modal, image gallery, infinite scroll, loading skeletons, empty/error states.
-- **Filtering & sorting** — multi-colour, price range, in-stock, and **brand** facets
-  with removable active-filter chips.
-- **Merchandising** — star **ratings & reviews**, **sale pricing** (struck-through
-  “was” price + % off), generated **product descriptions**.
-- **Cart & checkout** — session-based guest cart, add-to-cart, checkout form, and
-  an order confirmation (CSRF-protected).
-- **Dark / light theme** — no-flash, OS-aware, persisted.
-- **Security pass** — nonce-based CSP + security headers, host-header allow-list,
-  search input bounds, no secrets in source.
-
-## Repository layout
+The solution follows Clean Architecture with clear separation of concerns across four layers:
 
 ```
-AdventureWorksMVCCore.Web/   the ASP.NET Core MVC app (controllers, views, models, wwwroot)
-AdventureWorksMVCCore.sln    solution
-CYCLE_STORE_Schema_data.sql  base database schema + seed data
-deploy/                      self-contained deployment kit (scripts, config, DB seed)
-docs/                        architecture, deployment, configuration, catalog & feature docs
-legacy/                      obsolete upstream AWS artifacts (Proton / ECS / RDS), kept for reference
+┌─────────────────────────────────────────────────────────┐
+│                    Presentation Layer                    │
+│              AdventureWorksMVCCore.Web                   │
+│         (Controllers, Views, ViewModels)                 │
+└─────────────────────────────────────────────────────────┘
+                           │
+                           ▼
+┌─────────────────────────────────────────────────────────┐
+│                   Application Layer                      │
+│           AdventureWorksMVCCore.Application              │
+│        (Services, Interfaces, Business Logic)            │
+└─────────────────────────────────────────────────────────┘
+                           │
+                           ▼
+┌─────────────────────────────────────────────────────────┐
+│                  Infrastructure Layer                    │
+│          AdventureWorksMVCCore.Infrastructure            │
+│      (Data Access, Repositories, DbContext)              │
+└─────────────────────────────────────────────────────────┘
+                           │
+                           ▼
+┌─────────────────────────────────────────────────────────┐
+│                     Domain Layer                         │
+│             AdventureWorksMVCCore.Domain                 │
+│          (Entities, Interfaces, Core Logic)              │
+└─────────────────────────────────────────────────────────┘
 ```
 
-## Quick start
+## Project Structure
 
-The database is a separate SQL Server VM in both supported topologies:
+### 1. AdventureWorksMVCCore.Domain
+**Purpose**: Core business entities and repository interfaces
 
-- **Scenario 1** — Web + App on one VM, Database on another.
-- **Scenario 2** — Web, App, and Database on three VMs (classic 3-tier).
+**Contents**:
+- `Entities/` - Domain entities (Product, ProductCategory, ProductSubcategory)
+- `Interfaces/` - Repository interfaces (IProductRepository, ICategoryRepository)
 
-Clone the repo on each VM and run the matching script. Full copy-paste steps:
-**[`deploy/README.md`](deploy/README.md)**. In short:
+**Dependencies**: None (pure domain logic)
+
+### 2. AdventureWorksMVCCore.Application
+**Purpose**: Business logic and application services
+
+**Contents**:
+- `Services/` - Service implementations (ProductService, CategoryService)
+- `Interfaces/` - Service interfaces (IProductService, ICategoryService)
+- `DTOs/` - Data Transfer Objects (if needed)
+
+**Dependencies**: 
+- AdventureWorksMVCCore.Domain
+
+### 3. AdventureWorksMVCCore.Infrastructure
+**Purpose**: Data access and external service implementations
+
+**Contents**:
+- `Data/` - Entity Framework DbContext (CycleStoreContext)
+- `Repositories/` - Repository implementations (ProductRepository, CategoryRepository)
+
+**Dependencies**: 
+- AdventureWorksMVCCore.Domain
+- Microsoft.EntityFrameworkCore.SqlServer (8.0.0)
+- Microsoft.EntityFrameworkCore.Tools (8.0.0)
+
+### 4. AdventureWorksMVCCore.Web
+**Purpose**: Presentation layer with MVC controllers and views
+
+**Contents**:
+- `Controllers/` - MVC controllers (HomeController, ProductsController, CartController)
+- `Views/` - Razor views
+- `ViewModels/` - View-specific models
+- `Models/` - Helper models (CatalogImages, CatalogContent, CartStore)
+- `wwwroot/` - Static files (CSS, JS, images)
+
+**Dependencies**: 
+- AdventureWorksMVCCore.Application
+- AdventureWorksMVCCore.Infrastructure
+
+## Key Benefits of Clean Architecture
+
+1. **Separation of Concerns**: Each layer has a specific responsibility
+2. **Testability**: Business logic can be tested independently of infrastructure
+3. **Maintainability**: Changes in one layer don't affect others
+4. **Flexibility**: Easy to swap implementations (e.g., change database provider)
+5. **Dependency Rule**: Dependencies point inward (Web → Application → Infrastructure → Domain)
+
+## Technology Stack
+
+- **.NET 8** - Latest LTS version
+- **ASP.NET Core MVC** - Web framework
+- **Entity Framework Core 8.0** - ORM for data access
+- **SQL Server** - Database
+- **Dependency Injection** - Built-in DI container
+
+## Getting Started
+
+### Prerequisites
+- .NET 8 SDK
+- SQL Server (local or remote)
+- Visual Studio 2022 or VS Code
+
+### Configuration
+
+Update the connection string in `appsettings.json` or set the environment variable:
 
 ```bash
-git clone https://github.com/harshit-kandhwey/cycle-store-core-mvc-app.git
-cd cycle-store-core-mvc-app
-# DB VM: see deploy/db/README.md
-# Scenario 1 (Web+App VM):   sudo ./deploy/setup-webapp.sh
-# Scenario 2 (App VM):       sudo ./deploy/setup-app.sh
-# Scenario 2 (Web VM):       sudo ./deploy/setup-web.sh
+export ConnectionStrings__DefaultConnection="Server=your-server;Database=CYCLE_STORE;..."
 ```
 
-Everything on a VM is driven by one file — `/etc/cyclestore/cyclestore.conf` —
-applied with `sudo cyclestore-apply`. Change a host or password later? Edit that
-file and re-run; nothing else to touch.
-
-## Documentation
-
-| Doc                                                  | What                                        |
-| ---------------------------------------------------- | ------------------------------------------- |
-| [docs/01-architecture.md](docs/01-architecture.md)   | tiers, request flow, tech stack             |
-| [docs/02-deployment.md](docs/02-deployment.md)       | the two topologies, step by step            |
-| [docs/03-configuration.md](docs/03-configuration.md) | `cyclestore.conf` keys + `cyclestore-apply` |
-| [docs/04-catalog-data.md](docs/04-catalog-data.md)   | catalog curation, images, adding products   |
-| [docs/05-features.md](docs/05-features.md)           | the storefront & e-commerce features        |
-
-## Tech stack
-
-ASP.NET Core MVC (.NET 8) · Entity Framework Core 8 · SQL Server 2019 ·
-Razor views · vanilla CSS/JS (no build step) · nginx (reverse proxy + TLS) ·
-systemd (Kestrel service).
-
-## Local development
-
-Set the connection string (`ConnectionStrings__DefaultConnection`) via environment
-or `appsettings.Development.json`, then:
+### Build and Run
 
 ```bash
-dotnet run --project AdventureWorksMVCCore.Web
+# Restore dependencies
+dotnet restore
+
+# Build the solution
+dotnet build
+
+# Run the web application
+cd AdventureWorksMVCCore.Web
+dotnet run
 ```
+
+## Database
+
+The application uses the CYCLE_STORE database with the following schema:
+
+- `Production.Product` - Product catalog
+- `Production.ProductCategory` - Product categories
+- `Production.ProductSubcategory` - Product subcategories
+
+## Dependency Injection Setup
+
+Services are registered in `Startup.cs`:
+
+```csharp
+// Infrastructure layer - Repositories
+services.AddScoped<IProductRepository, ProductRepository>();
+services.AddScoped<ICategoryRepository, CategoryRepository>();
+
+// Application layer - Services
+services.AddScoped<IProductService, ProductService>();
+services.AddScoped<ICategoryService, CategoryService>();
+
+// DbContext
+services.AddDbContext<CycleStoreContext>(options =>
+    options.UseSqlServer(connectionString));
+```
+
+## Testing Strategy
+
+The Clean Architecture enables comprehensive testing:
+
+1. **Unit Tests**: Test Application layer services with mocked repositories
+2. **Integration Tests**: Test Infrastructure layer with test database
+3. **UI Tests**: Test Web layer controllers with mocked services
+
+## Migration from Legacy ASP.NET MVC
+
+This application has been migrated from legacy ASP.NET MVC to .NET 8 with Clean Architecture:
+
+**Key Changes**:
+- Separated concerns into distinct layers
+- Introduced repository pattern for data access
+- Moved business logic to Application layer
+- Updated to Entity Framework Core 8.0
+- Modernized dependency injection
+- Improved testability and maintainability
+
+## License
+
+This is a demonstration project for educational purposes.
